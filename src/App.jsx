@@ -6,6 +6,7 @@ import PresetSelector from './components/PresetSelector';
 import ControlSliders from './components/ControlSliders';
 import ExportPanel from './components/ExportPanel';
 import AndroidShareModal from './components/AndroidShareModal';
+import TraceModal from './components/TraceModal';
 import { ASPECT_RATIO_PRESETS } from './constants/presets';
 import {
   calculateCanvasDimensions,
@@ -13,6 +14,7 @@ import {
   loadImageFromSource,
 } from './utils/canvas';
 import { useShareTarget } from './hooks/useShareTarget';
+import { addTrace } from './utils/tracer';
 import {
   Grid3X3,
   Sliders,
@@ -62,6 +64,7 @@ export default function App() {
 
   // Modals & Notifications
   const [isShareGuideOpen, setIsShareGuideOpen] = useState(false);
+  const [isTraceModalOpen, setIsTraceModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
 
   const canvasRef = useRef(null);
@@ -74,6 +77,7 @@ export default function App() {
   // Load Image Handler
   const handleLoadImage = useCallback(async (source, filename = 'photo.jpg') => {
     try {
+      addTrace('APP', `Loading image: ${filename}`);
       const loadedImg = await loadImageFromSource(source);
       setImage(loadedImg);
       setOriginalFilename(filename);
@@ -83,9 +87,11 @@ export default function App() {
       setFlipV(false);
       setPositionX(0);
       setPositionY(0);
+      addTrace('APP', `Image successfully mounted to canvas (${loadedImg.naturalWidth}x${loadedImg.naturalHeight})`);
       showToast('Photo loaded into canvas studio');
     } catch (err) {
       console.error('Failed to load image:', err);
+      addTrace('APP ERROR', `Failed to load image: ${err.message}`);
       showToast('Failed to load image file. Please try another format.');
     }
   }, []);
@@ -93,6 +99,7 @@ export default function App() {
   // Web Share Target & PWA Hook
   const { isInstallable, isStandalone, installPwa } = useShareTarget({
     onImageReceived: (blob, filename) => {
+      addTrace('APP', `useShareTarget onImageReceived event: ${filename} (${blob.size} bytes)`);
       handleLoadImage(blob, filename);
       showToast('Received photo directly from Android Gallery!');
     },
@@ -215,6 +222,7 @@ export default function App() {
         isInstallable={isInstallable}
         onInstall={installPwa}
         onOpenShareGuide={() => setIsShareGuideOpen(true)}
+        onOpenTrace={() => setIsTraceModalOpen(true)}
         isStandalone={isStandalone}
       />
 
@@ -411,6 +419,13 @@ export default function App() {
         onClose={() => setIsShareGuideOpen(false)}
         isInstallable={isInstallable}
         onInstall={installPwa}
+      />
+
+      {/* Live Share Target Trace & Diagnostics Modal */}
+      <TraceModal
+        isOpen={isTraceModalOpen}
+        onClose={() => setIsTraceModalOpen(false)}
+        onSimulateShare={handleLoadImage}
       />
     </div>
   );

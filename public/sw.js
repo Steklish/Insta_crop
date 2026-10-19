@@ -1,15 +1,46 @@
-// InstaCrop Service Worker with robust IndexedDB + Cache storage for Web Share Target
-
-const CACHE_NAME = 'instacrop-cache-v2';
+// InstaCrop Service Worker with Live Tracing & IndexedDB Storage
+const CACHE_NAME = 'instacrop-cache-v3';
 const DB_NAME = 'instacrop-share-db';
 const DB_VERSION = 1;
 const STORE_NAME = 'shared-media-store';
 
+const TRACE_DB = 'instacrop-trace-db';
+const TRACE_STORE = 'logs';
+
+// Helper to write trace logs visible in the in-app Diagnostics Panel
+function traceLog(msg, details) {
+  try {
+    if (self.indexedDB) {
+      const req = self.indexedDB.open(TRACE_DB, 1);
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(TRACE_STORE)) {
+          db.createObjectStore(TRACE_STORE, { autoIncrement: true });
+        }
+      };
+      req.onsuccess = (e) => {
+        try {
+          const db = e.target.result;
+          const tx = db.transaction(TRACE_STORE, 'readwrite');
+          tx.objectStore(TRACE_STORE).add({
+            time: new Date().toLocaleTimeString(),
+            source: 'SW',
+            message: msg,
+            details: details ? (typeof details === 'object' ? JSON.stringify(details) : String(details)) : null
+          });
+        } catch (err) {}
+      };
+    }
+  } catch (e) {}
+  console.log('[SW Trace]', msg, details || '');
+}
+
 // Inline IndexedDB helper for Service Worker environment
 function saveFileToIndexedDB(file) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     try {
       if (!self.indexedDB) {
+        traceLog('IndexedDB not available in self');
         resolve(false);
         return;
       }
@@ -23,72 +54,100 @@ function saveFileToIndexedDB(file) {
       };
 
       request.onsuccess = (e) => {
-        const db = e.target.result;
-        const tx = db.transaction(STORE_NAME, 'readwrite');
-        const store = tx.objectStore(STORE_NAME);
+        try {
+          const db = e.target.result;
+          const tx = db.transaction(STORE_NAME, 'readwrite');
+          const store = tx.objectStore(STORE_NAME);
 
-        const record = {
-          id: 'latest-shared-image',
-          file: file,
-          name: file.name || 'shared-image.jpg',
-          type: file.type || 'image/jpeg',
-          timestamp: Date.now(),
-        };
+          const record = {
+            id: 'latest-shared-image',
+            file: file,
+            name: file.name || 'shared-image.jpg',
+            type: file.type || 'image/jpeg',
+            timestamp: Date.now(),
+          };
 
-        const putReq = store.put(record);
-        putReq.onsuccess = () => resolve(true);
-        putReq.onerror = () => resolve(false);
+          const putReq = store.put(record);
+          putReq.onsuccess = () => {
+            traceLog('Saved image to IndexedDB', { name: record.name, size: file.size, type: file.type });
+            resolve(true);
+          };
+          putReq.onerror = (err) => {
+            traceLog('IndexedDB store.put error', err);
+            resolve(false);
+          };
+        } catch (txErr) {
+          traceLog('Transaction error', txErr.message);
+          resolve(false);
+        }
       };
 
-      request.onerror = () => resolve(false);
+      request.onerror = (err) => {
+        traceLog('IndexedDB open error', err);
+        resolve(false);
+      };
     } catch (err) {
-      console.warn('[SW IDB] Error saving:', err);
+      traceLog('saveFileToIndexedDB exception', err.message);
       resolve(false);
     }
   });
 }
 
 self.addEventListener('install', (event) => {
+  traceLog('Service Worker installed (v3)');
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    (async () => {
-      await self.clients.claim();
-    })()
-  );
+  traceLog('Service Worker activated, claiming clients');
+  event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // 1. Intercept Android Web Share Target POST multipart upload
-  if (event.request.method === 'POST' && url.pathname.includes('share-target')) {
+  // 1. Intercept Web Share Target (POST or GET to /share-target)
+  if (url.pathname.includes('share-target')) {
+    traceLog(`Intercepted share-target request: ${event.request.method} ${url.pathname}`);
+
     event.respondWith(
       (async () => {
         try {
-          const formData = await event.request.formData();
           let imageFile = null;
 
-          // Find file in formData entries
-          for (const [key, value] of formData.entries()) {
-            if (value && typeof value === 'object' && (value instanceof File || value instanceof Blob || value.size > 0)) {
-              imageFile = value;
-              break;
+          if (event.request.method === 'POST') {
+            traceLog('Parsing incoming POST multipart/form-data...');
+            const formData = await event.request.formData();
+            
+            const keysFound = [];
+            for (const [key, value] of formData.entries()) {
+              const isObj = value && typeof value === 'object';
+              const hasSize = isObj && typeof value.size === 'number' && value.size > 0;
+              keysFound.push(`${key}: (size=${hasSize ? value.size : 0})`);
+
+              if (!imageFile && hasSize) {
+                imageFile = value;
+              }
+            }
+            traceLog('FormData entries inspected', keysFound);
+
+            // Fallback key lookups
+            if (!imageFile) {
+              imageFile = formData.get('image') || formData.get('file') || formData.get('media');
             }
           }
 
-          // Fallback to known field names
-          if (!imageFile) {
-            imageFile = formData.get('image') || formData.get('file') || formData.get('media');
-          }
+          if (imageFile) {
+            traceLog('Image file detected in share target', {
+              name: imageFile.name,
+              size: imageFile.size,
+              type: imageFile.type
+            });
 
-          if (imageFile && imageFile.size > 0) {
-            // A. Save to IndexedDB (primary & most reliable for Blobs on Android)
+            // Save to IndexedDB
             await saveFileToIndexedDB(imageFile);
 
-            // B. Also save to Cache with valid full URL
+            // Also save to Cache with full valid URL
             try {
               const cache = await caches.open('instacrop-shared-media');
               const cacheUrl = new URL('shared-media-file', self.registration.scope).href;
@@ -97,42 +156,44 @@ self.addEventListener('fetch', (event) => {
               headers.set('x-filename', encodeURIComponent(imageFile.name || 'shared-image.jpg'));
               headers.set('x-timestamp', Date.now().toString());
               await cache.put(cacheUrl, new Response(imageFile, { headers }));
+              traceLog('Also saved copy to Cache Storage', cacheUrl);
             } catch (cacheErr) {
-              console.warn('[SW Cache] Cache fallback skipped:', cacheErr);
+              traceLog('Cache Storage fallback skipped', cacheErr.message);
             }
 
-            // C. Broadcast notification to active tabs
+            // Notify open clients
             try {
               if (typeof BroadcastChannel !== 'undefined') {
                 const bc = new BroadcastChannel('instacrop-share-channel');
                 bc.postMessage({ type: 'SHARED_IMAGE_AVAILABLE', timestamp: Date.now() });
                 bc.close();
               }
-            } catch (bcErr) {
-              // ignore
-            }
+            } catch (e) {}
 
             const allClients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
             for (const client of allClients) {
               client.postMessage({ type: 'SHARED_IMAGE_AVAILABLE', timestamp: Date.now() });
             }
+          } else {
+            traceLog('WARNING: No image file found in share target request payload');
           }
         } catch (err) {
-          console.error('[SW] Error processing share_target upload:', err);
+          traceLog('ERROR in share_target fetch handler', { message: err.message, stack: err.stack });
         }
 
-        // Ensure redirect stays inside repository scope on GitHub Pages
+        // Redirect back into repository scope
         const scope = self.registration.scope.endsWith('/')
           ? self.registration.scope
           : self.registration.scope + '/';
         const redirectUrl = new URL('?shared=1&t=' + Date.now(), scope).href;
+        traceLog('Redirecting to app URL', redirectUrl);
         return Response.redirect(redirectUrl, 303);
       })()
     );
     return;
   }
 
-  // 2. Offline caching strategy for static resources
+  // 2. Offline caching for app shell
   if (event.request.method === 'GET' && url.protocol.startsWith('http')) {
     if (url.origin === self.location.origin) {
       event.respondWith(
@@ -146,9 +207,7 @@ self.addEventListener('fetch', (event) => {
             return networkResponse;
           } catch (err) {
             const cachedResponse = await caches.match(event.request);
-            if (cachedResponse) {
-              return cachedResponse;
-            }
+            if (cachedResponse) return cachedResponse;
             if (event.request.mode === 'navigate') {
               const indexFallback = await caches.match('./') || await caches.match('./index.html');
               if (indexFallback) return indexFallback;

@@ -7,6 +7,7 @@ export default function Header({
   isInstallable,
   onInstall,
   onOpenShareGuide,
+  onOpenTrace,
   isStandalone,
 }) {
   return (
@@ -41,6 +42,16 @@ export default function Header({
 
         {/* Action Controls */}
         <div className="flex items-center gap-2">
+          {/* Trace Diagnostics Button */}
+          <button
+            onClick={onOpenTrace}
+            className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white text-xs font-medium transition-all shadow-sm"
+            title="Inspect Service Worker & Share Target event traces"
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="text-[11px] font-mono">Trace</span>
+          </button>
+
           {/* Android Gallery Guide Button */}
           <button
             onClick={onOpenShareGuide}

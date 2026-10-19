@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { getSharedFile } from '../utils/idb';
+import { addTrace } from '../utils/tracer';
 
 const MEDIA_CACHE = 'instacrop-shared-media';
 
@@ -65,13 +66,14 @@ export function useShareTarget({ onImageReceived }) {
     try {
       const record = await getSharedFile(true);
       if (record && record.file && record.file.size > 0) {
+        addTrace('APP', `Found pending image in IndexedDB (${record.name}, ${record.file.size} bytes)`);
         if (onImageReceivedRef.current) {
           onImageReceivedRef.current(record.file, record.name || 'shared-image.jpg');
           handled = true;
         }
       }
     } catch (idbErr) {
-      console.warn('[ShareTarget] IndexedDB check failed, trying Cache fallback:', idbErr);
+      addTrace('APP WARNING', `IndexedDB read error: ${idbErr.message}`);
     }
 
     // 2. Secondary Method: Check Cache Storage API
