@@ -364,12 +364,16 @@ export function loadImageFromSource(source) {
     }
 
     img.onload = () => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      setTimeout(() => {
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+      }, 5000);
       resolve(img);
     };
 
     img.onerror = (err) => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      setTimeout(() => {
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+      }, 2000);
       reject(new Error('Failed to load image: file may be corrupted or format is unsupported'));
     };
   });

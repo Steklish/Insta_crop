@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { getSharedFile } from '../utils/idb';
 
 const MEDIA_CACHE = 'instacrop-shared-media';
 
@@ -7,6 +8,12 @@ export function useShareTarget({ onImageReceived }) {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+
+  // Keep a ref to the callback so listeners always use latest version
+  const onImageReceivedRef = useRef(onImageReceived);
+  useEffect(() => {
+    onImageReceivedRef.current = onImageReceived;
+  }, [onImageReceived]);
 
   // Check if running as installed standalone PWA
   useEffect(() => {
@@ -49,62 +56,107 @@ export function useShareTarget({ onImageReceived }) {
     return outcome === 'accepted';
   }, [deferredPrompt]);
 
-  // Check shared media from Service Worker Cache
+  // Check shared media from IndexedDB (primary) or Cache API (fallback)
   const checkSharedMedia = useCallback(async () => {
-    if (!('caches' in window)) return false;
+    setIsCheckingShare(true);
+    let handled = false;
 
+    // 1. Primary Method: Check IndexedDB
     try {
-      setIsCheckingShare(true);
-      const cache = await caches.open(MEDIA_CACHE);
-      const response = await cache.match('shared-image');
-
-      if (response) {
-        const blob = await response.blob();
-        const filename = decodeURIComponent(response.headers.get('x-filename') || 'shared-image.jpg');
-        // Delete once retrieved
-        await cache.delete('shared-image');
-
-        if (blob && blob.size > 0 && onImageReceived) {
-          onImageReceived(blob, filename);
-          return true;
+      const record = await getSharedFile(true);
+      if (record && record.file && record.file.size > 0) {
+        if (onImageReceivedRef.current) {
+          onImageReceivedRef.current(record.file, record.name || 'shared-image.jpg');
+          handled = true;
         }
       }
-    } catch (err) {
-      console.warn('[PWA] Error checking shared cache:', err);
-    } finally {
-      setIsCheckingShare(false);
+    } catch (idbErr) {
+      console.warn('[ShareTarget] IndexedDB check failed, trying Cache fallback:', idbErr);
     }
-    return false;
-  }, [onImageReceived]);
+
+    // 2. Secondary Method: Check Cache Storage API
+    if (!handled && 'caches' in window) {
+      try {
+        const cache = await caches.open(MEDIA_CACHE);
+        const keys = await cache.keys();
+        for (const req of keys) {
+          const res = await cache.match(req);
+          if (res) {
+            const blob = await res.blob();
+            const filename = decodeURIComponent(res.headers.get('x-filename') || 'shared-image.jpg');
+            await cache.delete(req);
+            if (blob && blob.size > 0 && onImageReceivedRef.current) {
+              onImageReceivedRef.current(blob, filename);
+              handled = true;
+              break;
+            }
+          }
+        }
+      } catch (cacheErr) {
+        console.warn('[ShareTarget] Cache fallback failed:', cacheErr);
+      }
+    }
+
+    setIsCheckingShare(false);
+    return handled;
+  }, []);
 
   useEffect(() => {
-    // 1. Check if URL has ?shared=1
+    // 1. Initial check on mount
+    checkSharedMedia();
+
+    // If URL has ?shared=1, check and clean URL afterwards
     const params = new URLSearchParams(window.location.search);
     if (params.get('shared') === '1' || params.has('shared')) {
-      // Clean query params from URL without refreshing
+      // Small timeout to allow SW IndexedDB write to complete if needed
+      setTimeout(() => checkSharedMedia(), 100);
+      setTimeout(() => checkSharedMedia(), 400);
+
+      // Clean query params
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
-      checkSharedMedia();
-    } else {
-      // Periodic or initial check
-      checkSharedMedia();
     }
 
-    // 2. Listen for SW messages
-    const handleMessage = (event) => {
+    // 2. Listen to BroadcastChannel
+    let bc = null;
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        bc = new BroadcastChannel('instacrop-share-channel');
+        bc.onmessage = (event) => {
+          if (event.data && event.data.type === 'SHARED_IMAGE_AVAILABLE') {
+            checkSharedMedia();
+          }
+        };
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // 3. Listen for Service Worker postMessage
+    const handleSwMessage = (event) => {
       if (event.data && event.data.type === 'SHARED_IMAGE_AVAILABLE') {
         checkSharedMedia();
       }
     };
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('message', handleMessage);
+      navigator.serviceWorker.addEventListener('message', handleSwMessage);
     }
 
-    return () => {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.removeEventListener('message', handleMessage);
+    // 4. Listen for visibility changes (when user switches back from Gallery to PWA)
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        checkSharedMedia();
       }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      if (bc) bc.close();
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', handleSwMessage);
+      }
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [checkSharedMedia]);
 

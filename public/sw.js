@@ -1,5 +1,52 @@
-const CACHE_NAME = 'instacrop-cache-v1';
-const MEDIA_CACHE = 'instacrop-shared-media';
+// InstaCrop Service Worker with robust IndexedDB + Cache storage for Web Share Target
+
+const CACHE_NAME = 'instacrop-cache-v2';
+const DB_NAME = 'instacrop-share-db';
+const DB_VERSION = 1;
+const STORE_NAME = 'shared-media-store';
+
+// Inline IndexedDB helper for Service Worker environment
+function saveFileToIndexedDB(file) {
+  return new Promise((resolve, reject) => {
+    try {
+      if (!self.indexedDB) {
+        resolve(false);
+        return;
+      }
+      const request = self.indexedDB.open(DB_NAME, DB_VERSION);
+
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        }
+      };
+
+      request.onsuccess = (e) => {
+        const db = e.target.result;
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+
+        const record = {
+          id: 'latest-shared-image',
+          file: file,
+          name: file.name || 'shared-image.jpg',
+          type: file.type || 'image/jpeg',
+          timestamp: Date.now(),
+        };
+
+        const putReq = store.put(record);
+        putReq.onsuccess = () => resolve(true);
+        putReq.onerror = () => resolve(false);
+      };
+
+      request.onerror = () => resolve(false);
+    } catch (err) {
+      console.warn('[SW IDB] Error saving:', err);
+      resolve(false);
+    }
+  });
+}
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -8,13 +55,6 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
-      // Clear old caches if version changes
-      const cacheNames = await caches.keys();
-      await Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME && name !== MEDIA_CACHE)
-          .map((name) => caches.delete(name))
-      );
       await self.clients.claim();
     })()
   );
@@ -29,29 +69,59 @@ self.addEventListener('fetch', (event) => {
       (async () => {
         try {
           const formData = await event.request.formData();
-          // Extract file parameter specified in manifest.json ("image")
-          const imageFile = formData.get('image') || formData.get('media') || formData.get('file');
+          let imageFile = null;
+
+          // Find file in formData entries
+          for (const [key, value] of formData.entries()) {
+            if (value && typeof value === 'object' && (value instanceof File || value instanceof Blob || value.size > 0)) {
+              imageFile = value;
+              break;
+            }
+          }
+
+          // Fallback to known field names
+          if (!imageFile) {
+            imageFile = formData.get('image') || formData.get('file') || formData.get('media');
+          }
 
           if (imageFile && imageFile.size > 0) {
-            const cache = await caches.open(MEDIA_CACHE);
-            const headers = new Headers();
-            headers.set('content-type', imageFile.type || 'image/jpeg');
-            headers.set('x-filename', encodeURIComponent(imageFile.name || 'shared-image.jpg'));
-            headers.set('x-timestamp', Date.now().toString());
+            // A. Save to IndexedDB (primary & most reliable for Blobs on Android)
+            await saveFileToIndexedDB(imageFile);
 
-            await cache.put('shared-image', new Response(imageFile, { headers }));
+            // B. Also save to Cache with valid full URL
+            try {
+              const cache = await caches.open('instacrop-shared-media');
+              const cacheUrl = new URL('shared-media-file', self.registration.scope).href;
+              const headers = new Headers();
+              headers.set('content-type', imageFile.type || 'image/jpeg');
+              headers.set('x-filename', encodeURIComponent(imageFile.name || 'shared-image.jpg'));
+              headers.set('x-timestamp', Date.now().toString());
+              await cache.put(cacheUrl, new Response(imageFile, { headers }));
+            } catch (cacheErr) {
+              console.warn('[SW Cache] Cache fallback skipped:', cacheErr);
+            }
 
-            // Notify any already open client tabs
+            // C. Broadcast notification to active tabs
+            try {
+              if (typeof BroadcastChannel !== 'undefined') {
+                const bc = new BroadcastChannel('instacrop-share-channel');
+                bc.postMessage({ type: 'SHARED_IMAGE_AVAILABLE', timestamp: Date.now() });
+                bc.close();
+              }
+            } catch (bcErr) {
+              // ignore
+            }
+
             const allClients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
             for (const client of allClients) {
-              client.postMessage({ type: 'SHARED_IMAGE_AVAILABLE' });
+              client.postMessage({ type: 'SHARED_IMAGE_AVAILABLE', timestamp: Date.now() });
             }
           }
         } catch (err) {
-          console.error('[SW] Failed to process share_target upload:', err);
+          console.error('[SW] Error processing share_target upload:', err);
         }
 
-        // Redirect back into the app with a query param signaling new shared content
+        // Redirect back to app root with query parameter signaling new shared media
         const redirectUrl = new URL('./?shared=1&t=' + Date.now(), self.registration.scope).href;
         return Response.redirect(redirectUrl, 303);
       })()
@@ -59,9 +129,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Offline caching strategy for static resources & app shell
+  // 2. Offline caching strategy for static resources
   if (event.request.method === 'GET' && url.protocol.startsWith('http')) {
-    // Avoid caching large cross-origin media
     if (url.origin === self.location.origin) {
       event.respondWith(
         (async () => {
