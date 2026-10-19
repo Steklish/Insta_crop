@@ -5,7 +5,6 @@ import CanvasPreview from './components/CanvasPreview';
 import PresetSelector from './components/PresetSelector';
 import ControlSliders from './components/ControlSliders';
 import ExportPanel from './components/ExportPanel';
-import AndroidShareModal from './components/AndroidShareModal';
 import { ASPECT_RATIO_PRESETS } from './constants/presets';
 import {
   calculateCanvasDimensions,
@@ -66,8 +65,7 @@ export default function App() {
   // Mobile Navigation Tab: 'preset' | 'adjust' | 'export'
   const [mobileTab, setMobileTab] = useState('preset');
 
-  // Modals & Notifications
-  const [isShareGuideOpen, setIsShareGuideOpen] = useState(false);
+  // Notifications
   const [toast, setToast] = useState(null);
 
   const canvasRef = useRef(null);
@@ -99,8 +97,8 @@ export default function App() {
     }
   }, []);
 
-  // Web Share Target & PWA Hook
-  const { isInstallable, isStandalone, installPwa } = useShareTarget({
+  // Web Share Target Hook (silent background receiver)
+  useShareTarget({
     onImageReceived: (blob, filename) => {
       addTrace('APP', `useShareTarget onImageReceived event: ${filename} (${blob.size} bytes)`);
       handleLoadImage(blob, filename);
@@ -287,10 +285,6 @@ export default function App() {
       <Header
         onReset={handleResetAll}
         hasImage={Boolean(image)}
-        isInstallable={isInstallable}
-        onInstall={installPwa}
-        onOpenShareGuide={() => setIsShareGuideOpen(true)}
-        isStandalone={isStandalone}
       />
 
       {/* Main Studio Viewport */}
@@ -298,7 +292,6 @@ export default function App() {
         {!image ? (
           <EmptyState
             onFileSelect={(file) => handleLoadImage(file, file.name)}
-            onSampleSelect={(url) => handleLoadImage(url, 'sample.jpg')}
           />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-start">
@@ -494,14 +487,6 @@ export default function App() {
           </button>
         </nav>
       )}
-
-      {/* Android Direct Share Tutorial Modal */}
-      <AndroidShareModal
-        isOpen={isShareGuideOpen}
-        onClose={() => setIsShareGuideOpen(false)}
-        isInstallable={isInstallable}
-        onInstall={installPwa}
-      />
     </div>
   );
 }

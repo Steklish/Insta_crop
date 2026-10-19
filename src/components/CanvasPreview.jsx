@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { RotateCw, FlipHorizontal, FlipVertical, Eye, Maximize2, Move, Square } from 'lucide-react';
+import React, { useRef } from 'react';
+import { RotateCw, FlipHorizontal, FlipVertical, Maximize2, Move, Square } from 'lucide-react';
 
 export default function CanvasPreview({
   canvasRef,
@@ -17,11 +17,6 @@ export default function CanvasPreview({
   cornerRadius = 24,
   onToggleCorners,
 }) {
-  const [isComparing, setIsComparing] = useState(false);
-
-  const startComparing = () => setIsComparing(true);
-  const stopComparing = () => setIsComparing(false);
-
   return (
     <div className="relative w-full flex flex-col items-center justify-center p-2.5 sm:p-5 bg-[#2a2a2c] rounded-3xl border border-[#3a3a3c] shadow-2xl overflow-hidden min-h-[290px] lg:min-h-[460px]">
       {/* Top Info Bar */}
@@ -34,25 +29,6 @@ export default function CanvasPreview({
             {targetDimensions.width} × {targetDimensions.height} px
           </span>
         </div>
-
-        {/* Hold to Compare button */}
-        <button
-          type="button"
-          onMouseDown={startComparing}
-          onMouseUp={stopComparing}
-          onMouseLeave={stopComparing}
-          onTouchStart={startComparing}
-          onTouchEnd={stopComparing}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold transition-all select-none active:scale-95 ${
-            isComparing
-              ? 'bg-[#a9967f] text-[#1c1c1e] shadow-md shadow-[#a9967f]/30'
-              : 'bg-[#252526] hover:bg-[#4a4a4c] text-[#e1e1e0] border border-[#3a3a3c]'
-          }`}
-          title="Press and hold to compare with source image"
-        >
-          <Eye className="w-3.5 h-3.5 text-[#a9967f]" />
-          <span>{isComparing ? 'Original' : 'Compare'}</span>
-        </button>
       </div>
 
       {/* Canvas Viewport Frame (Optimized max-height for mobile screens) */}
@@ -60,27 +36,11 @@ export default function CanvasPreview({
         {/* The Live Render Canvas */}
         <canvas
           ref={canvasRef}
-          className={`max-w-full max-h-[48vh] sm:max-h-[58vh] object-contain transition-opacity duration-150 ${
-            isComparing ? 'opacity-0' : 'opacity-100'
-          }`}
+          className="max-w-full max-h-[48vh] sm:max-h-[58vh] object-contain"
           style={{
             aspectRatio: `${targetDimensions.width} / ${targetDimensions.height}`,
           }}
         />
-
-        {/* Raw Image Overlay when comparing */}
-        {isComparing && originalImage && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/85 backdrop-blur-xs p-3 animate-fade-in">
-            <img
-              src={originalImage.src}
-              alt="Original Unedited"
-              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-            />
-            <div className="absolute bottom-3 px-3 py-1 bg-[#2a2a2c]/90 backdrop-blur-md text-[#a9967f] text-xs font-bold rounded-full border border-[#a9967f]/40">
-              Original Unedited Photo
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Floating Canvas Quick Controls Toolbar */}

@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { Upload, Image as ImageIcon, Camera, Sparkles, Smartphone, ShieldCheck, Zap } from 'lucide-react';
-import { SAMPLE_IMAGES } from '../constants/presets';
+import { Upload, Image as ImageIcon, Camera, Sparkles } from 'lucide-react';
 
-export default function EmptyState({ onFileSelect, onSampleSelect, isCheckingShare }) {
+export default function EmptyState({ onFileSelect }) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
@@ -110,79 +109,6 @@ export default function EmptyState({ onFileSelect, onSampleSelect, isCheckingSha
               <Camera className="w-4 h-4 text-[#a9967f]" />
               <span>Take Photo</span>
             </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Instant Demo Samples */}
-      <div className="w-full max-w-2xl mt-8">
-        <div className="flex items-center justify-between mb-3 px-1">
-          <span className="text-xs font-semibold text-[#a0a0a0] uppercase tracking-wider">
-            Or test with sample images:
-          </span>
-          <span className="text-[11px] text-[#a0a0a0]">Instant 1-Click Load</span>
-        </div>
-
-        <div className="grid grid-cols-3 gap-3">
-          {SAMPLE_IMAGES.map((sample, idx) => (
-            <button
-              key={idx}
-              onClick={() => onSampleSelect(sample.url)}
-              className="group relative rounded-xl overflow-hidden border border-[#3a3a3c] hover:border-[#a9967f] transition-all text-left bg-[#252526] shadow-sm"
-            >
-              <div className="aspect-video w-full overflow-hidden bg-[#1c1c1e]">
-                <img
-                  src={sample.thumb}
-                  alt={sample.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300 opacity-80 group-hover:opacity-100"
-                  loading="lazy"
-                />
-              </div>
-              <div className="p-2">
-                <p className="text-[11px] font-medium text-[#e1e1e0] truncate group-hover:text-[#a9967f]">
-                  {sample.name}
-                </p>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Feature Highlights Footer */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-3xl mt-12 pt-8 border-t border-[#3a3a3c]">
-        <div className="flex items-start gap-3 p-3.5 rounded-xl bg-[#252526] border border-[#3a3a3c]">
-          <div className="p-2 rounded-lg bg-[#a9967f]/15 text-[#a9967f]">
-            <Smartphone className="w-4 h-4" />
-          </div>
-          <div>
-            <h4 className="text-xs font-bold text-[#e1e1e0]">Android Share Sheet</h4>
-            <p className="text-[11px] text-[#a0a0a0] mt-0.5">
-              Directly share from Samsung Gallery or Google Photos via Web Share Target.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-3 p-3.5 rounded-xl bg-[#252526] border border-[#3a3a3c]">
-          <div className="p-2 rounded-lg bg-[#a9967f]/15 text-[#a9967f]">
-            <Zap className="w-4 h-4" />
-          </div>
-          <div>
-            <h4 className="text-xs font-bold text-[#e1e1e0]">Lossless Canvas Processing</h4>
-            <p className="text-[11px] text-[#a0a0a0] mt-0.5">
-              Instant hardware-accelerated HTML5 Canvas with adjustable blur and tints.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-3 p-3.5 rounded-xl bg-[#252526] border border-[#3a3a3c]">
-          <div className="p-2 rounded-lg bg-[#71b34f]/15 text-[#71b34f]">
-            <ShieldCheck className="w-4 h-4" />
-          </div>
-          <div>
-            <h4 className="text-xs font-bold text-[#e1e1e0]">100% Private & In-Browser</h4>
-            <p className="text-[11px] text-[#a0a0a0] mt-0.5">
-              Your photos never leave your device. Works fully offline as a PWA.
-            </p>
           </div>
         </div>
       </div>

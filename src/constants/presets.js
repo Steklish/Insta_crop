@@ -122,20 +122,3 @@ export const EXPORT_FORMATS = [
   { id: 'image/webp', label: 'WebP', ext: 'webp', desc: 'Modern high compression format' },
 ];
 
-export const SAMPLE_IMAGES = [
-  {
-    name: 'Mountain Lake Sunset',
-    url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
-    thumb: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=300&q=80',
-  },
-  {
-    name: 'Cyberpunk Neon Street',
-    url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1200&q=80',
-    thumb: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=300&q=80',
-  },
-  {
-    name: 'Minimal Architecture',
-    url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
-    thumb: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=300&q=80',
-  },
-];
