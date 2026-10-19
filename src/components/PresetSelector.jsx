@@ -45,14 +45,14 @@ export default function PresetSelector({
       </div>
 
       {/* Preset Cards Grid (Mobile-friendly 2 cols on xs, 3 cols on sm+) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2">
         {ASPECT_RATIO_PRESETS.map((preset) => {
           const isSelected = selectedPreset.id === preset.id;
           return (
             <button
               key={preset.id}
               onClick={() => onSelectPreset(preset)}
-              className={`relative flex flex-col items-start p-3 rounded-2xl border text-left transition-all active:scale-[0.98] ${
+              className={`relative flex flex-col items-start p-2 xs:p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border text-left transition-all active:scale-[0.98] ${
                 isSelected
                   ? 'bg-[#a9967f]/15 border-[#a9967f] shadow-md shadow-[#a9967f]/10'
                   : 'bg-[#252526] border-[#3a3a3c] hover:border-[#4a4a4c] hover:bg-[#2a2a2c] text-[#e1e1e0]'
@@ -60,32 +60,32 @@ export default function PresetSelector({
             >
               {/* Badge if available */}
               {preset.badge && (
-                <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-[#a9967f] text-[#1c1c1e]">
+                <span className="absolute top-1.5 right-1.5 xs:top-2 xs:right-2 px-1 xs:px-1.5 py-0.2 rounded-full text-[8px] xs:text-[9px] font-bold uppercase tracking-wide bg-[#a9967f] text-[#1c1c1e]">
                   {preset.badge}
                 </span>
               )}
 
-              <div className="flex items-center gap-1.5 w-full">
+              <div className="flex items-center gap-1 w-full">
                 <span
-                  className={`text-sm font-extrabold ${
+                  className={`text-xs xs:text-sm font-extrabold ${
                     isSelected ? 'text-[#a9967f]' : 'text-[#e1e1e0]'
                   }`}
                 >
                   {preset.label}
                 </span>
-                {isSelected && <Check className="w-3.5 h-3.5 text-[#a9967f] ml-auto" />}
+                {isSelected && <Check className="w-3 h-3 xs:w-3.5 xs:h-3.5 text-[#a9967f] ml-auto" />}
               </div>
 
-              <div className="text-xs font-semibold text-[#e1e1e0] mt-0.5 truncate w-full">
+              <div className="text-[11px] xs:text-xs font-semibold text-[#e1e1e0] mt-0.5 truncate w-full">
                 {preset.name}
               </div>
 
-              <div className="text-[10px] text-[#e1e1e0]/60 truncate w-full mt-0.5">
+              <div className="text-[9px] xs:text-[10px] text-[#e1e1e0]/60 truncate w-full mt-0.5">
                 {preset.category}
               </div>
 
               {preset.width && preset.height && (
-                <div className="text-[10px] font-mono text-[#e1e1e0]/50 mt-1">
+                <div className="text-[9px] xs:text-[10px] font-mono text-[#e1e1e0]/50 mt-0.5 xs:mt-1">
                   {preset.width} × {preset.height}
                 </div>
               )}

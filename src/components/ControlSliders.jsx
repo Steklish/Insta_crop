@@ -92,41 +92,44 @@ export default function ControlSliders({
   return (
     <div className="space-y-4">
       {/* Sub Tabs */}
-      <div className="flex rounded-2xl bg-[#252526] p-1 border border-[#3a3a3c]">
+      <div className="flex rounded-xl sm:rounded-2xl bg-[#252526] p-1 border border-[#3a3a3c]">
         <button
           onClick={() => setActiveTab('background')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1 sm:gap-1.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all ${
             activeTab === 'background'
               ? 'bg-[#a9967f] text-[#1c1c1e] shadow-md shadow-[#a9967f]/20 font-extrabold'
               : 'text-[#e1e1e0]/70 hover:text-white'
           }`}
         >
-          <Layers className="w-3.5 h-3.5" />
-          <span>Background</span>
+          <Layers className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          <span className="hidden xs:inline">Background</span>
+          <span className="xs:hidden">Bg</span>
         </button>
 
         <button
           onClick={() => setActiveTab('foreground')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1 sm:gap-1.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all ${
             activeTab === 'foreground'
               ? 'bg-[#a9967f] text-[#1c1c1e] shadow-md shadow-[#a9967f]/20 font-extrabold'
               : 'text-[#e1e1e0]/70 hover:text-white'
           }`}
         >
-          <Square className="w-3.5 h-3.5" />
-          <span>Foreground</span>
+          <Square className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          <span className="hidden xs:inline">Foreground</span>
+          <span className="xs:hidden">Fore</span>
         </button>
 
         <button
           onClick={() => setActiveTab('effects')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1 sm:gap-1.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all ${
             activeTab === 'effects'
               ? 'bg-[#a9967f] text-[#1c1c1e] shadow-md shadow-[#a9967f]/20 font-extrabold'
               : 'text-[#e1e1e0]/70 hover:text-white'
           }`}
         >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Shadow & Border</span>
+          <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          <span className="hidden xs:inline">Shadow & Border</span>
+          <span className="xs:hidden">Effects</span>
         </button>
       </div>
 

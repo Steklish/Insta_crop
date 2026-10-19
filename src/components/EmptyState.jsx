@@ -34,17 +34,17 @@ export default function EmptyState({ onFileSelect }) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-8 md:py-12 flex flex-col items-center">
+    <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 py-4 sm:py-8 md:py-12 flex flex-col items-center">
       {/* Hero Header */}
-      <div className="text-center max-w-xl mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#a9967f]/15 border border-[#a9967f]/30 text-[#a9967f] text-xs font-semibold mb-3">
-          <Sparkles className="w-3.5 h-3.5" />
+      <div className="text-center max-w-xl mb-4 sm:mb-8">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#a9967f]/15 border border-[#a9967f]/30 text-[#a9967f] text-[11px] sm:text-xs font-semibold mb-2 sm:mb-3">
+          <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           <span>No More Cropping Out Photo Edges</span>
         </div>
-        <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#e1e1e0]">
+        <h2 className="text-xl xs:text-2xl sm:text-4xl font-extrabold tracking-tight text-[#e1e1e0]">
           Fit Any Photo onto <span className="bg-gradient-to-r from-[#a9967f] via-[#e1e1e0] to-[#7b7061] bg-clip-text text-transparent">Any Canvas</span>
         </h2>
-        <p className="mt-2.5 text-sm sm:text-base text-[#a0a0a0]">
+        <p className="mt-2 text-xs sm:text-sm text-[#a0a0a0]">
           Transform pictures into aesthetic Instagram 4:5 portraits, 1:1 squares, or 9:16 reels with matching blurred backgrounds in seconds.
         </p>
       </div>
@@ -54,7 +54,7 @@ export default function EmptyState({ onFileSelect }) {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`w-full max-w-2xl relative rounded-3xl border-2 border-dashed p-8 md:p-12 text-center transition-all cursor-pointer ${
+        className={`w-full max-w-2xl relative rounded-2xl sm:rounded-3xl border-2 border-dashed p-5 sm:p-8 md:p-12 text-center transition-all cursor-pointer ${
           isDragging
             ? 'border-[#a9967f] bg-[#a9967f]/10 scale-[1.01]'
             : 'border-[#3a3a3c] bg-[#252526] hover:border-[#a9967f]/60 hover:bg-[#2a2a2c]'
@@ -77,25 +77,25 @@ export default function EmptyState({ onFileSelect }) {
           onChange={handleInputChange}
         />
 
-        <div className="flex flex-col items-center justify-center gap-4">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#2a2a2c] border border-[#a9967f]/30 flex items-center justify-center text-[#a9967f] shadow-xl shadow-black/40">
-            <Upload className="w-8 h-8 sm:w-10 sm:h-10 animate-bounce" />
+        <div className="flex flex-col items-center justify-center gap-3 sm:gap-4">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-[#2a2a2c] border border-[#a9967f]/30 flex items-center justify-center text-[#a9967f] shadow-xl shadow-black/40">
+            <Upload className="w-6 h-6 sm:w-8 sm:h-8 animate-bounce" />
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-[#e1e1e0]">
+            <h3 className="text-base sm:text-lg font-bold text-[#e1e1e0]">
               {isDragging ? 'Drop photo here to format' : 'Select or drop an image here'}
             </h3>
-            <p className="text-xs sm:text-sm text-[#a0a0a0] mt-1">
+            <p className="text-[11px] sm:text-xs text-[#a0a0a0] mt-1">
               Supports JPEG, PNG, WebP, HEIC/AVIF up to high-resolution camera files
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-2" onClick={(e) => e.stopPropagation()}>
+          <div className="flex flex-col xs:flex-row items-center justify-center gap-2.5 sm:gap-3 mt-1 sm:mt-2 w-full xs:w-auto" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#a9967f] hover:bg-[#7b7061] text-[#1c1c1e] text-xs sm:text-sm font-bold shadow-lg shadow-[#a9967f]/20 transition-all hover:scale-105 active:scale-95"
+              className="w-full xs:w-auto flex items-center justify-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-[#a9967f] hover:bg-[#7b7061] text-[#1c1c1e] text-xs sm:text-sm font-bold shadow-lg shadow-[#a9967f]/20 transition-all hover:scale-105 active:scale-95"
             >
               <ImageIcon className="w-4 h-4" />
               <span>Browse Photos</span>
@@ -104,7 +104,7 @@ export default function EmptyState({ onFileSelect }) {
             <button
               type="button"
               onClick={() => cameraInputRef.current?.click()}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#3a3a3c] hover:bg-[#4a4a4c] text-[#e1e1e0] text-xs sm:text-sm font-medium border border-[#3a3a3c] transition-all"
+              className="w-full xs:w-auto flex items-center justify-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl bg-[#3a3a3c] hover:bg-[#4a4a4c] text-[#e1e1e0] text-xs sm:text-sm font-medium border border-[#3a3a3c] transition-all"
             >
               <Camera className="w-4 h-4 text-[#a9967f]" />
               <span>Take Photo</span>

@@ -272,12 +272,12 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#1c1c1e] text-[#e1e1e0] font-sans pb-24 lg:pb-6">
+    <div className="min-h-screen flex flex-col bg-[#1c1c1e] text-[#e1e1e0] font-sans pb-20 xs:pb-24 lg:pb-6">
       {/* Toast Notification */}
       {toast && (
-        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#2a2a2c] text-[#e1e1e0] text-xs font-semibold shadow-2xl shadow-black/60 border border-[#a9967f]/50 animate-fade-in">
-          <Sparkles className="w-4 h-4 text-[#a9967f]" />
-          <span>{toast}</span>
+        <div className="fixed top-12 xs:top-14 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 xs:gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-2xl bg-[#2a2a2c] text-[#e1e1e0] text-[11px] xs:text-xs font-semibold shadow-2xl shadow-black/60 border border-[#a9967f]/50 animate-fade-in max-w-[90vw] truncate">
+          <Sparkles className="w-3.5 h-3.5 text-[#a9967f] flex-shrink-0" />
+          <span className="truncate">{toast}</span>
         </div>
       )}
 
@@ -288,13 +288,13 @@ export default function App() {
       />
 
       {/* Main Studio Viewport */}
-      <main className="flex-1 w-full max-w-7xl mx-auto p-2.5 sm:p-5">
+      <main className="flex-1 w-full max-w-7xl mx-auto p-1.5 xs:p-2.5 sm:p-5">
         {!image ? (
           <EmptyState
             onFileSelect={(file) => handleLoadImage(file, file.name)}
           />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 xs:gap-4 sm:gap-5 items-start">
             {/* LEFT COLUMN: Canvas Preview */}
             <div className="lg:col-span-7 xl:col-span-8 lg:sticky lg:top-18">
               <CanvasPreview
@@ -357,7 +357,7 @@ export default function App() {
               </div>
 
               {/* Dynamic Tab Content (Active on both desktop and mobile according to mobileTab) */}
-              <div className="bg-[#2a2a2c] rounded-3xl p-3.5 sm:p-5 border border-[#3a3a3c] shadow-2xl">
+              <div className="bg-[#2a2a2c] rounded-2xl sm:rounded-3xl p-2.5 xs:p-3.5 sm:p-5 border border-[#3a3a3c] shadow-2xl">
                 {mobileTab === 'preset' && (
                   <PresetSelector
                     selectedPreset={selectedPreset}
@@ -449,41 +449,41 @@ export default function App() {
 
       {/* Mobile Bottom Navigation Bar (Visible only on mobile screens when image is loaded) */}
       {image && (
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#1c1c1e]/95 backdrop-blur-xl border-t border-[#3a3a3c] px-4 py-2 safe-area-bottom flex items-center justify-around shadow-2xl">
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#1c1c1e]/95 backdrop-blur-xl border-t border-[#3a3a3c] px-2 xs:px-4 py-1 xs:py-1.5 safe-area-bottom flex items-center justify-around shadow-2xl">
           <button
             onClick={() => setMobileTab('preset')}
-            className={`flex flex-col items-center gap-1 py-1 px-4 rounded-xl transition-all ${
+            className={`flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-3 xs:px-4 rounded-xl transition-all ${
               mobileTab === 'preset'
                 ? 'text-[#a9967f] font-extrabold scale-105'
                 : 'text-[#e1e1e0]/50 hover:text-[#e1e1e0]'
             }`}
           >
-            <Grid3X3 className="w-5 h-5" />
-            <span className="text-[10px] font-medium tracking-wide">Presets</span>
+            <Grid3X3 className="w-4 h-4 xs:w-5 xs:h-5" />
+            <span className="text-[9px] xs:text-[10px] font-medium tracking-wide">Presets</span>
           </button>
 
           <button
             onClick={() => setMobileTab('adjust')}
-            className={`flex flex-col items-center gap-1 py-1 px-4 rounded-xl transition-all ${
+            className={`flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-3 xs:px-4 rounded-xl transition-all ${
               mobileTab === 'adjust'
                 ? 'text-[#a9967f] font-extrabold scale-105'
                 : 'text-[#e1e1e0]/50 hover:text-[#e1e1e0]'
             }`}
           >
-            <Sliders className="w-5 h-5" />
-            <span className="text-[10px] font-medium tracking-wide">Adjust</span>
+            <Sliders className="w-4 h-4 xs:w-5 xs:h-5" />
+            <span className="text-[9px] xs:text-[10px] font-medium tracking-wide">Adjust</span>
           </button>
 
           <button
             onClick={() => setMobileTab('export')}
-            className={`flex flex-col items-center gap-1 py-1 px-4 rounded-xl transition-all ${
+            className={`flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-3 xs:px-4 rounded-xl transition-all ${
               mobileTab === 'export'
                 ? 'text-[#a9967f] font-extrabold scale-105'
                 : 'text-[#e1e1e0]/50 hover:text-[#e1e1e0]'
             }`}
           >
-            <Download className="w-5 h-5" />
-            <span className="text-[10px] font-medium tracking-wide">Export</span>
+            <Download className="w-4 h-4 xs:w-5 xs:h-5" />
+            <span className="text-[9px] xs:text-[10px] font-medium tracking-wide">Export</span>
           </button>
         </nav>
       )}

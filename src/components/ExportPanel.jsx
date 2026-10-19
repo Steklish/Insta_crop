@@ -206,15 +206,15 @@ export default function ExportPanel({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-1.5">
         <h3 className="text-xs font-bold uppercase tracking-wider text-[#a0a0a0]">
           Export & Resolution
         </h3>
         <div className="flex items-center gap-1.5">
-          <span className="text-[11px] font-mono font-bold text-[#a9967f] bg-[#a9967f]/10 px-2 py-0.5 rounded-md border border-[#a9967f]/30">
+          <span className="text-[10px] sm:text-[11px] font-mono font-bold text-[#a9967f] bg-[#a9967f]/10 px-1.5 sm:px-2 py-0.5 rounded-md border border-[#a9967f]/30">
             {exportDimensions.width} × {exportDimensions.height} px
           </span>
-          <span className="text-[10px] font-mono text-[#e1e1e0] bg-[#3a3a3c] px-1.5 py-0.5 rounded-md border border-[#3a3a3c]">
+          <span className="text-[9px] sm:text-[10px] font-mono text-[#e1e1e0] bg-[#3a3a3c] px-1.5 py-0.5 rounded-md border border-[#3a3a3c]">
             {megapixels} MP
           </span>
         </div>
@@ -425,27 +425,30 @@ export default function ExportPanel({
         <button
           onClick={handleDownload}
           disabled={isExporting}
-          className="w-full py-3.5 px-4 rounded-2xl bg-[#a9967f] hover:bg-[#7b7061] text-[#1c1c1e] text-sm font-bold shadow-lg shadow-[#a9967f]/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+          className="w-full py-3 px-3 sm:py-3.5 sm:px-4 rounded-xl sm:rounded-2xl bg-[#a9967f] hover:bg-[#7b7061] text-[#1c1c1e] text-xs sm:text-sm font-bold shadow-lg shadow-[#a9967f]/20 flex items-center justify-center gap-1.5 sm:gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
         >
           {isExporting ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
+            <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
           ) : (
-            <Download className="w-5 h-5" />
+            <Download className="w-4 h-4 sm:w-5 sm:h-5" />
           )}
-          <span>
+          <span className="hidden xs:inline truncate">
             {isExporting ? 'Generating High-Res Canvas...' : `Download ${selectedFormatObj.label} (${exportDimensions.width}×${exportDimensions.height})`}
+          </span>
+          <span className="xs:hidden truncate">
+            {isExporting ? 'Exporting...' : `Download ${selectedFormatObj.label}`}
           </span>
         </button>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
           {/* Native Web Share Button (direct to Instagram / WhatsApp) */}
           <button
             onClick={handleNativeShare}
             disabled={isExporting}
-            className="py-2.5 px-3 rounded-xl bg-[#2a2a2c] hover:bg-[#3a3a3c] border border-[#3a3a3c] text-[#e1e1e0] text-xs font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+            className="py-2 px-2.5 sm:py-2.5 sm:px-3 rounded-lg sm:rounded-xl bg-[#2a2a2c] hover:bg-[#3a3a3c] border border-[#3a3a3c] text-[#e1e1e0] text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1.5 sm:gap-2 transition-all disabled:opacity-50"
             title="Share directly into Instagram, WhatsApp, or other apps"
           >
-            <Share2 className="w-4 h-4 text-[#a9967f]" />
+            <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#a9967f]" />
             <span>Share to Apps</span>
           </button>
 
@@ -453,14 +456,14 @@ export default function ExportPanel({
           <button
             onClick={handleCopyClipboard}
             disabled={isExporting}
-            className="py-2.5 px-3 rounded-xl bg-[#2a2a2c] hover:bg-[#3a3a3c] border border-[#3a3a3c] text-[#e1e1e0] text-xs font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+            className="py-2 px-2.5 sm:py-2.5 sm:px-3 rounded-lg sm:rounded-xl bg-[#2a2a2c] hover:bg-[#3a3a3c] border border-[#3a3a3c] text-[#e1e1e0] text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1.5 sm:gap-2 transition-all disabled:opacity-50"
           >
             {copied ? (
-              <Check className="w-4 h-4 text-[#71b34f]" />
+              <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#71b34f]" />
             ) : (
-              <Copy className="w-4 h-4 text-[#a9967f]" />
+              <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#a9967f]" />
             )}
-            <span>{copied ? 'Copied Image!' : 'Copy to Clipboard'}</span>
+            <span>{copied ? 'Copied!' : 'Copy Image'}</span>
           </button>
         </div>
       </div>

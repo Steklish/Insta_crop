@@ -97,3 +97,12 @@
 .safe-area-top {
   padding-top: env(safe-area-inset-top, 0px);
 }
+
+/* Hide scrollbar for horizontal mobile strips */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
