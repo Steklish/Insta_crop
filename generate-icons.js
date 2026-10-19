@@ -1,4 +1,4 @@
-// Generates valid PNG icons (192x192, 512x512) and SVG icon for PWA
+// Generates valid PNG icons matching insta_crop.svg
 import fs from 'fs';
 import zlib from 'zlib';
 
@@ -35,28 +35,72 @@ function makeChunk(type, data) {
   return buf;
 }
 
-function generateIconPNG(size, filename) {
+function isInRoundedRect(x, y, rx, ry, rw, rh, rad) {
+  if (x < rx || x > rx + rw || y < ry || y > ry + rh) return false;
+  const left = x - (rx + rad);
+  const right = x - (rx + rw - rad);
+  const top = y - (ry + rad);
+  const bottom = y - (ry + rh - rad);
+
+  if (left < 0 && top < 0) return Math.hypot(left, top) <= rad;
+  if (right > 0 && top < 0) return Math.hypot(right, top) <= rad;
+  if (left < 0 && bottom > 0) return Math.hypot(left, bottom) <= rad;
+  if (right > 0 && bottom > 0) return Math.hypot(right, bottom) <= rad;
+  return true;
+}
+
+function distToSegment(px, py, x1, y1, x2, y2) {
+  const l2 = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+  if (l2 === 0) return Math.hypot(px - x1, py - y1);
+  let t = ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) / l2;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (x1 + t * (x2 - x1)), py - (y1 + t * (y2 - y1)));
+}
+
+function isNearCropStrokes(x, y, scale) {
+  const halfThick = 8 * scale;
+  const segs = [
+    // Top-left
+    [76, 186, 76, 76], [76, 76, 186, 76],
+    // Top-right
+    [336, 76, 446, 76], [446, 76, 446, 186],
+    // Bottom-left
+    [76, 326, 76, 436], [76, 436, 186, 436],
+    // Bottom-right
+    [336, 436, 446, 436], [446, 436, 446, 326],
+  ];
+
+  for (const [x1, y1, x2, y2] of segs) {
+    if (distToSegment(x, y, x1 * scale, y1 * scale, x2 * scale, y2 * scale) <= halfThick) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function generateInstaCropPNG(size, filename, isMaskable = false) {
   const width = size;
   const height = size;
   const rawData = Buffer.alloc(height * (1 + width * 4));
+  const scale = size / 512;
 
   for (let y = 0; y < height; y++) {
     const rowOffset = y * (1 + width * 4);
-    rawData[rowOffset] = 0; // Filter type 0 (None)
+    rawData[rowOffset] = 0; // Filter None
 
     for (let x = 0; x < width; x++) {
       const pxOffset = rowOffset + 1 + x * 4;
-      const nx = x / width;
-      const ny = y / height;
 
-      // Rounded squircle distance
-      const cx = (nx - 0.5) * 2;
-      const cy = (ny - 0.5) * 2;
-      const cornerRadius = 0.28;
-      const dist = Math.pow(Math.abs(cx), 4) + Math.pow(Math.abs(cy), 4);
+      // Base background
+      let inBase = false;
+      if (isMaskable) {
+        // Maskable fills full canvas
+        inBase = true;
+      } else {
+        inBase = isInRoundedRect(x, y, 0, 0, width, height, 112 * scale);
+      }
 
-      if (dist > 1.0) {
-        // Transparent outside
+      if (!inBase) {
         rawData[pxOffset] = 0;
         rawData[pxOffset + 1] = 0;
         rawData[pxOffset + 2] = 0;
@@ -64,35 +108,33 @@ function generateIconPNG(size, filename) {
         continue;
       }
 
-      // Gradient background: indigo -> violet -> rose
-      let r = Math.round(99 + 130 * nx);
-      let g = Math.round(102 - 30 * ny);
-      let b = Math.round(241 - 80 * nx);
+      // Default Emerald Base: #10b981 (16, 185, 129)
+      let r = 16;
+      let g = 185;
+      let b = 129;
 
-      // Inner image frame box (canvas representation)
-      const inBox = nx >= 0.25 && nx <= 0.75 && ny >= 0.25 && ny <= 0.75;
-      const isBorder = inBox && (
-        nx <= 0.28 || nx >= 0.72 || ny <= 0.28 || ny >= 0.72
-      );
+      // Check shadow offset: x=116, y=116, w=288, h=288, rx=20
+      if (isInRoundedRect(x, y, 116 * scale, 116 * scale, 288 * scale, 288 * scale, 20 * scale)) {
+        // #047857 (4, 120, 87)
+        r = 4; g = 120; b = 87;
+      }
 
-      // Inner photo landscape (mountains + sun)
-      const inSun = Math.hypot(nx - 0.62, ny - 0.42) < 0.08;
-      const inMountain = inBox && (
-        (ny > 0.65 - Math.abs(nx - 0.45) * 0.8) ||
-        (ny > 0.68 - Math.abs(nx - 0.60) * 0.6)
-      );
-
-      if (isBorder) {
+      // Check main white square canvas: x=96, y=96, w=288, h=288, rx=20
+      if (isInRoundedRect(x, y, 96 * scale, 96 * scale, 288 * scale, 288 * scale, 20 * scale)) {
         r = 255; g = 255; b = 255;
-      } else if (inSun) {
-        r = 254; g = 240; b = 138; // golden sun
-      } else if (inMountain) {
-        r = 224; g = 231; b = 255; // snow peak
-      } else if (inBox) {
-        // slightly darker tinted glass
-        r = Math.round(r * 0.75);
-        g = Math.round(g * 0.75);
-        b = Math.round(b * 0.75);
+      }
+
+      // Check inner mint blurred image: x=136, y=136, w=208, h=208, rx=12 (fill #6ee7b7 with 0.5 opacity over white)
+      if (isInRoundedRect(x, y, 136 * scale, 136 * scale, 208 * scale, 208 * scale, 12 * scale)) {
+        // Blend #6ee7b7 (110, 231, 183) at 50% over 255, 255, 255
+        r = Math.round(255 * 0.5 + 110 * 0.5); // ~182
+        g = Math.round(255 * 0.5 + 231 * 0.5); // ~243
+        b = Math.round(255 * 0.5 + 183 * 0.5); // ~219
+      }
+
+      // Check bold crop strokes: #065f46 (6, 95, 70)
+      if (isNearCropStrokes(x, y, scale)) {
+        r = 6; g = 95; b = 70;
       }
 
       rawData[pxOffset] = r;
@@ -103,32 +145,25 @@ function generateIconPNG(size, filename) {
   }
 
   const compressed = zlib.deflateSync(rawData);
-
-  // PNG Signature
   const signature = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
 
-  // IHDR
   const ihdrData = Buffer.alloc(13);
   ihdrData.writeUInt32BE(width, 0);
   ihdrData.writeUInt32BE(height, 4);
-  ihdrData[8] = 8; // bit depth
-  ihdrData[9] = 6; // color type: RGBA
-  ihdrData[10] = 0; // compression
-  ihdrData[11] = 0; // filter
-  ihdrData[12] = 0; // interlace
+  ihdrData[8] = 8;
+  ihdrData[9] = 6;
+  ihdrData[10] = 0;
+  ihdrData[11] = 0;
+  ihdrData[12] = 0;
   const ihdrChunk = makeChunk('IHDR', ihdrData);
-
-  // IDAT
   const idatChunk = makeChunk('IDAT', compressed);
-
-  // IEND
   const iendChunk = makeChunk('IEND', Buffer.alloc(0));
 
   const png = Buffer.concat([signature, ihdrChunk, idatChunk, iendChunk]);
   fs.writeFileSync(filename, png);
-  console.log(`Saved ${filename} (${width}x${height})`);
+  console.log(`Saved ${filename} (${width}x${height}) matching insta_crop.svg`);
 }
 
-generateIconPNG(192, './public/icon-192.png');
-generateIconPNG(512, './public/icon-512.png');
-generateIconPNG(512, './public/icon-maskable-512.png');
+generateInstaCropPNG(192, './public/icon-192.png', false);
+generateInstaCropPNG(512, './public/icon-512.png', false);
+generateInstaCropPNG(512, './public/icon-maskable-512.png', true);

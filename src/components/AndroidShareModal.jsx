@@ -13,9 +13,11 @@ export default function AndroidShareModal({ isOpen, onClose, onInstall, isInstal
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-tr from-indigo-500 to-pink-500 text-white shadow-lg shadow-indigo-500/30">
-              <Share2 className="w-6 h-6" />
-            </div>
+            <img
+              src="./icon.svg"
+              alt="InstaCrop Logo"
+              className="w-10 h-10 rounded-xl shadow-lg shadow-emerald-500/25 object-contain"
+            />
             <div>
               <h3 className="text-lg font-bold text-white">Android Gallery Direct Share</h3>
               <p className="text-xs text-slate-400">Share photos into InstaCrop without manual uploads</p>

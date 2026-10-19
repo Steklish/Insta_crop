@@ -14,10 +14,11 @@ export default function Header({
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
         {/* Logo & Title */}
         <div className="flex items-center gap-3">
-          <div className="relative group flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 shadow-md shadow-indigo-500/25">
-            <Sparkles className="w-5 h-5 text-white" />
-            <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </div>
+          <img
+            src="./icon.svg"
+            alt="InstaCrop Logo"
+            className="w-9 h-9 rounded-xl shadow-md shadow-emerald-500/25 object-contain hover:scale-105 transition-transform"
+          />
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">

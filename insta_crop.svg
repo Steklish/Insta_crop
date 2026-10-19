@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <rect width="512" height="512" rx="112" fill="#10b981" />
+  
+  <!-- Background card shadow offset -->
+  <rect x="116" y="116" width="288" height="288" rx="20" fill="#047857" />
+  
+  <!-- Main white square canvas area -->
+  <rect x="96" y="96" width="288" height="288" rx="20" fill="#ffffff" />
+  
+  <!-- Inner blurred image representation -->
+  <rect x="136" y="136" width="208" height="208" rx="12" fill="#6ee7b7" opacity="0.5" />
+  
+  <!-- Bold Crop Emblem Lines intersecting -->
+  <path d="M 76 186 L 76 76 L 186 76" fill="none" stroke="#065f46" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 336 76 L 446 76 L 446 186" fill="none" stroke="#065f46" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 76 326 L 76 436 L 186 436" fill="none" stroke="#065f46" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 336 436 L 446 436 L 446 326" fill="none" stroke="#065f46" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
