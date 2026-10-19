@@ -41,6 +41,8 @@ export function calculateCanvasDimensions({
   sourceImage,
   scaleMultiplier = 1,
   resolutionMode = '1x',
+  customExportWidth = null,
+  customExportHeight = null,
 }) {
   let baseW = 1080;
   let baseH = 1080;
@@ -59,12 +61,47 @@ export function calculateCanvasDimensions({
   let finalW = baseW;
   let finalH = baseH;
 
-  if (resolutionMode === '2x') {
+  if (resolutionMode === 'custom' && customExportWidth && customExportHeight) {
+    finalW = Math.max(32, parseInt(customExportWidth, 10) || baseW);
+    finalH = Math.max(32, parseInt(customExportHeight, 10) || baseH);
+  } else if (resolutionMode === '0.5x') {
+    finalW = Math.round(baseW * 0.5);
+    finalH = Math.round(baseH * 0.5);
+  } else if (resolutionMode === '1.5x') {
+    finalW = Math.round(baseW * 1.5);
+    finalH = Math.round(baseH * 1.5);
+  } else if (resolutionMode === '2x') {
     finalW = Math.round(baseW * 2);
     finalH = Math.round(baseH * 2);
+  } else if (resolutionMode === '3x') {
+    finalW = Math.round(baseW * 3);
+    finalH = Math.round(baseH * 3);
+  } else if (resolutionMode === '4x') {
+    finalW = Math.round(baseW * 4);
+    finalH = Math.round(baseH * 4);
+  } else if (resolutionMode === '720p') {
+    const maxDim = Math.max(baseW, baseH);
+    const factor = 1280 / maxDim;
+    finalW = Math.round(baseW * factor);
+    finalH = Math.round(baseH * factor);
+  } else if (resolutionMode === '1080p') {
+    const maxDim = Math.max(baseW, baseH);
+    const factor = 1920 / maxDim;
+    finalW = Math.round(baseW * factor);
+    finalH = Math.round(baseH * factor);
+  } else if (resolutionMode === '1440p' || resolutionMode === '2k') {
+    const maxDim = Math.max(baseW, baseH);
+    const factor = 2560 / maxDim;
+    finalW = Math.round(baseW * factor);
+    finalH = Math.round(baseH * factor);
   } else if (resolutionMode === '4k') {
     const maxDim = Math.max(baseW, baseH);
     const factor = 3840 / maxDim;
+    finalW = Math.round(baseW * factor);
+    finalH = Math.round(baseH * factor);
+  } else if (resolutionMode === '8k') {
+    const maxDim = Math.max(baseW, baseH);
+    const factor = 7680 / maxDim;
     finalW = Math.round(baseW * factor);
     finalH = Math.round(baseH * factor);
   } else if (resolutionMode === 'native' && sourceImage) {
@@ -73,14 +110,17 @@ export function calculateCanvasDimensions({
     const factor = srcMax / baseMax;
     finalW = Math.round(baseW * factor);
     finalH = Math.round(baseH * factor);
-  } else {
+  } else if (typeof scaleMultiplier === 'number' && scaleMultiplier > 0) {
     finalW = Math.round(baseW * scaleMultiplier);
     finalH = Math.round(baseH * scaleMultiplier);
+  } else {
+    finalW = Math.round(baseW);
+    finalH = Math.round(baseH);
   }
 
   // Ensure minimum dimensions
-  finalW = Math.max(64, finalW);
-  finalH = Math.max(64, finalH);
+  finalW = Math.max(32, finalW);
+  finalH = Math.max(32, finalH);
 
   return {
     width: finalW,
@@ -106,7 +146,11 @@ export function renderCanvas({
   tintColor = '#000000',
   bgSaturation = 120,
   bgBrightness = 95,
-  padding = 0.08, // 0 to 0.4
+  padding = 0.08, // fallback uniform padding
+  paddingX = null, // precise horizontal margin (0.0 to 0.5)
+  paddingY = null, // precise vertical margin (0.0 to 0.5)
+  fgFitMode = 'contain', // 'contain' | 'cover' | 'fill-shortest'
+  fgScale = 1.0, // foreground zoom/scale multiplier
   enableCornerRadius = true,
   cornerRadius = 24,
   shadowBlur = 32,
@@ -198,11 +242,27 @@ export function renderCanvas({
   const effectiveImgW = isRotatedQuarter ? imgH : imgW;
   const effectiveImgH = isRotatedQuarter ? imgW : imgH;
 
-  const paddedWidth = targetWidth * Math.max(0.1, 1 - padding * 2);
-  const paddedHeight = targetHeight * Math.max(0.1, 1 - padding * 2);
+  // Resolve precise margins: allow exact 0 (flush to edge)
+  const padX = typeof paddingX === 'number' ? Math.max(0, Math.min(0.5, paddingX)) : (typeof padding === 'number' ? Math.max(0, Math.min(0.5, padding)) : 0.08);
+  const padY = typeof paddingY === 'number' ? Math.max(0, Math.min(0.5, paddingY)) : (typeof padding === 'number' ? Math.max(0, Math.min(0.5, padding)) : 0.08);
 
-  // Contain fit
-  const containScale = Math.min(paddedWidth / effectiveImgW, paddedHeight / effectiveImgH);
+  const paddedWidth = targetWidth * Math.max(0.0, 1 - padX * 2);
+  const paddedHeight = targetHeight * Math.max(0.0, 1 - padY * 2);
+
+  // Calculate base scale according to fit mode
+  let baseScale;
+  if (fgFitMode === 'cover') {
+    // Fills entire padded area
+    baseScale = Math.max(paddedWidth / effectiveImgW, paddedHeight / effectiveImgH);
+  } else if (fgFitMode === 'fill-shortest') {
+    // Scales foreground up so the side with larger margin touches the edge (eliminates shortest side margin completely)
+    baseScale = Math.max(targetWidth / effectiveImgW, targetHeight / effectiveImgH);
+  } else {
+    // Standard contain: fits entirely inside padded box
+    baseScale = Math.min(paddedWidth / effectiveImgW, paddedHeight / effectiveImgH);
+  }
+
+  const containScale = baseScale * (typeof fgScale === 'number' && fgScale > 0 ? fgScale : 1.0);
   const fgDrawW = imgW * containScale;
   const fgDrawH = imgH * containScale;
 
@@ -347,34 +407,61 @@ export async function shareImageFile(blob, filename, title = 'InstaCrop Photo') 
 /**
  * Load image from File or Blob safely
  */
-export function loadImageFromSource(source) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
+export async function loadImageFromSource(source) {
+  try {
+    return await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
 
-    let objectUrl = null;
-    if (typeof source === 'string') {
-      img.src = source;
-    } else if (source instanceof Blob || source instanceof File) {
-      objectUrl = URL.createObjectURL(source);
-      img.src = objectUrl;
-    } else {
-      reject(new Error('Invalid image source type'));
-      return;
+      let objectUrl = null;
+      if (typeof source === 'string') {
+        img.src = source;
+      } else if (source instanceof Blob || source instanceof File) {
+        objectUrl = URL.createObjectURL(source);
+        img.src = objectUrl;
+      } else {
+        reject(new Error('Invalid image source type'));
+        return;
+      }
+
+      img.onload = () => {
+        setTimeout(() => {
+          if (objectUrl) URL.revokeObjectURL(objectUrl);
+        }, 5000);
+        resolve(img);
+      };
+
+      img.onerror = () => {
+        setTimeout(() => {
+          if (objectUrl) URL.revokeObjectURL(objectUrl);
+        }, 1000);
+        reject(new Error('HTMLImageElement load error'));
+      };
+    });
+  } catch (initialErr) {
+    // Fallback: Try createImageBitmap (hardware decoders on Android for HEIC/HEIF)
+    if (typeof createImageBitmap === 'function' && (source instanceof Blob || source instanceof File)) {
+      try {
+        const bitmap = await createImageBitmap(source);
+        const canvas = document.createElement('canvas');
+        canvas.width = bitmap.width;
+        canvas.height = bitmap.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(bitmap, 0, 0);
+        bitmap.close();
+
+        const dataUrl = canvas.toDataURL('image/png');
+        const fallbackImg = new Image();
+        await new Promise((res, rej) => {
+          fallbackImg.onload = res;
+          fallbackImg.onerror = rej;
+          fallbackImg.src = dataUrl;
+        });
+        return fallbackImg;
+      } catch (bitmapErr) {
+        console.warn('createImageBitmap fallback also failed:', bitmapErr);
+      }
     }
-
-    img.onload = () => {
-      setTimeout(() => {
-        if (objectUrl) URL.revokeObjectURL(objectUrl);
-      }, 5000);
-      resolve(img);
-    };
-
-    img.onerror = (err) => {
-      setTimeout(() => {
-        if (objectUrl) URL.revokeObjectURL(objectUrl);
-      }, 2000);
-      reject(new Error('Failed to load image: file may be corrupted or format is unsupported'));
-    };
-  });
+    throw new Error('Failed to load image: file may be corrupted or format is unsupported');
+  }
 }

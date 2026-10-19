@@ -106,10 +106,14 @@ export const ASPECT_RATIO_PRESETS = [
 ];
 
 export const RESOLUTION_SCALES = [
-  { id: '1x', label: '1x Standard', multiplier: 1, desc: 'Web & fast sharing' },
-  { id: '2x', label: '2x High-Res (Retina)', multiplier: 2, desc: 'Ultra-crisp display' },
+  { id: '1x', label: '1x Standard', multiplier: 1, desc: 'Original canvas size' },
+  { id: '1.5x', label: '1.5x HD', multiplier: 1.5, desc: 'Enhanced clarity' },
+  { id: '2x', label: '2x Retina', multiplier: 2, desc: 'Ultra-crisp display' },
+  { id: '3x', label: '3x Ultra', multiplier: 3, desc: 'Extreme detail' },
   { id: '4k', label: '4K Ultra HD', multiplier: '4k', desc: 'Max 3840px dimension' },
-  { id: 'native', label: 'Native Source', multiplier: 'native', desc: 'Preserves image resolution' },
+  { id: '8k', label: '8K Master', multiplier: '8k', desc: 'Max 7680px dimension' },
+  { id: 'native', label: 'Native Photo', multiplier: 'native', desc: 'Preserves image resolution' },
+  { id: 'custom', label: 'Custom (px)', multiplier: 'custom', desc: 'Exact width & height' },
 ];
 
 export const EXPORT_FORMATS = [

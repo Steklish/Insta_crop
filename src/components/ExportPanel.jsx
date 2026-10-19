@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Download,
   Share2,
@@ -8,6 +8,10 @@ import {
   FileImage,
   Loader2,
   AlertCircle,
+  Lock,
+  Unlock,
+  Sliders,
+  Maximize2,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { RESOLUTION_SCALES, EXPORT_FORMATS } from '../constants/presets';
@@ -29,6 +33,10 @@ export default function ExportPanel({
   originalFilename,
 }) {
   const [resolutionMode, setResolutionMode] = useState('1x');
+  const [customExportWidth, setCustomExportWidth] = useState(1080);
+  const [customExportHeight, setCustomExportHeight] = useState(1080);
+  const [lockAspect, setLockAspect] = useState(true);
+  const [scaleSlider, setScaleSlider] = useState(1.0);
   const [exportFormat, setExportFormat] = useState('image/png');
   const [jpegQuality, setJpegQuality] = useState(0.92);
   const [filename, setFilename] = useState(
@@ -38,14 +46,73 @@ export default function ExportPanel({
   const [copied, setCopied] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
-  // Compute final dimensions based on selected resolution mode
+  // Base dimensions calculation
+  const baseDim = calculateCanvasDimensions({
+    preset,
+    customWidth,
+    customHeight,
+    sourceImage: image,
+    resolutionMode: '1x',
+  });
+
+  // Sync initial custom export inputs when preset or base dimensions change
+  useEffect(() => {
+    if (resolutionMode !== 'custom') {
+      const dim = calculateCanvasDimensions({
+        preset,
+        customWidth,
+        customHeight,
+        sourceImage: image,
+        resolutionMode,
+        scaleMultiplier: scaleSlider,
+      });
+      setCustomExportWidth(dim.width);
+      setCustomExportHeight(dim.height);
+    }
+  }, [preset, customWidth, customHeight, image, resolutionMode]);
+
+  // Compute final dimensions based on selected resolution mode & custom inputs
   const exportDimensions = calculateCanvasDimensions({
     preset,
     customWidth,
     customHeight,
     sourceImage: image,
     resolutionMode,
+    customExportWidth,
+    customExportHeight,
+    scaleMultiplier: scaleSlider,
   });
+
+  const baseAspect = (baseDim.width || 1080) / (baseDim.height || 1080);
+
+  const handleCustomWidthChange = (val) => {
+    const w = parseInt(val, 10) || 0;
+    setCustomExportWidth(w);
+    setResolutionMode('custom');
+    if (lockAspect && w > 0) {
+      setCustomExportHeight(Math.round(w / baseAspect));
+    }
+  };
+
+  const handleCustomHeightChange = (val) => {
+    const h = parseInt(val, 10) || 0;
+    setCustomExportHeight(h);
+    setResolutionMode('custom');
+    if (lockAspect && h > 0) {
+      setCustomExportWidth(Math.round(h * baseAspect));
+    }
+  };
+
+  const handleScaleSliderChange = (scale) => {
+    setScaleSlider(scale);
+    const newW = Math.round(baseDim.width * scale);
+    const newH = Math.round(baseDim.height * scale);
+    setCustomExportWidth(newW);
+    setCustomExportHeight(newH);
+    setResolutionMode('custom');
+  };
+
+  const megapixels = ((exportDimensions.width * exportDimensions.height) / 1000000).toFixed(1);
 
   const selectedFormatObj = EXPORT_FORMATS.find((f) => f.id === exportFormat) || EXPORT_FORMATS[0];
 
@@ -143,9 +210,14 @@ export default function ExportPanel({
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
           Export & Resolution
         </h3>
-        <span className="text-[11px] font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20">
-          {exportDimensions.width} × {exportDimensions.height} px
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20">
+            {exportDimensions.width} × {exportDimensions.height} px
+          </span>
+          <span className="text-[10px] font-mono text-purple-300 bg-purple-500/10 px-1.5 py-0.5 rounded-md border border-purple-500/20">
+            {megapixels} MP
+          </span>
+        </div>
       </div>
 
       {/* Resolution Multiplier / Target Mode */}
@@ -155,7 +227,12 @@ export default function ExportPanel({
           return (
             <button
               key={scale.id}
-              onClick={() => setResolutionMode(scale.id)}
+              onClick={() => {
+                setResolutionMode(scale.id);
+                if (typeof scale.multiplier === 'number') {
+                  setScaleSlider(scale.multiplier);
+                }
+              }}
               className={`p-2.5 rounded-xl border text-left transition-all ${
                 isSelected
                   ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-sm'
@@ -169,6 +246,109 @@ export default function ExportPanel({
             </button>
           );
         })}
+      </div>
+
+      {/* Fine-Tuning & Custom Resolution Controls */}
+      <div className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 space-y-3">
+        {/* Custom Exact Pixels Editor */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Exact Output Resolution (px)</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => setLockAspect(!lockAspect)}
+              className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-semibold border transition-colors ${
+                lockAspect
+                  ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
+                  : 'bg-slate-800 text-slate-400 border-slate-700'
+              }`}
+              title={lockAspect ? 'Aspect ratio is locked. Width & Height scale together' : 'Aspect ratio is unlocked'}
+            >
+              {lockAspect ? <Lock className="w-2.5 h-2.5" /> : <Unlock className="w-2.5 h-2.5" />}
+              <span>{lockAspect ? 'Aspect Locked' : 'Unlocked'}</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <label className="block text-[10px] text-slate-400 font-medium mb-1">
+                Width (pixels)
+              </label>
+              <div className="flex items-center bg-slate-950 border border-slate-800 focus-within:border-indigo-500 rounded-xl px-2.5 py-1.5">
+                <input
+                  type="number"
+                  min="64"
+                  max="12000"
+                  value={exportDimensions.width}
+                  onChange={(e) => handleCustomWidthChange(e.target.value)}
+                  className="w-full bg-transparent text-white font-mono text-xs focus:outline-none"
+                />
+                <span className="text-[10px] text-slate-500 font-mono ml-1">px</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-slate-400 font-medium mb-1">
+                Height (pixels)
+              </label>
+              <div className="flex items-center bg-slate-950 border border-slate-800 focus-within:border-indigo-500 rounded-xl px-2.5 py-1.5">
+                <input
+                  type="number"
+                  min="64"
+                  max="12000"
+                  value={exportDimensions.height}
+                  onChange={(e) => handleCustomHeightChange(e.target.value)}
+                  className="w-full bg-transparent text-white font-mono text-xs focus:outline-none"
+                />
+                <span className="text-[10px] text-slate-500 font-mono ml-1">px</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Continuous Scale Multiplier Slider */}
+        <div className="pt-2 border-t border-slate-800/80 space-y-1.5">
+          <div className="flex justify-between items-center text-[11px] font-medium text-slate-300">
+            <span>Continuous Scaling Multiplier</span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-mono text-indigo-400 font-bold">{scaleSlider.toFixed(2)}x</span>
+              <span className="text-[10px] text-slate-500">
+                ({Math.round(baseDim.width * scaleSlider)}×{Math.round(baseDim.height * scaleSlider)})
+              </span>
+            </div>
+          </div>
+
+          <input
+            type="range"
+            min="0.25"
+            max="4.0"
+            step="0.05"
+            value={scaleSlider}
+            onChange={(e) => handleScaleSliderChange(parseFloat(e.target.value))}
+            className="w-full accent-indigo-500 cursor-pointer"
+          />
+
+          {/* Quick Multiplier Buttons */}
+          <div className="flex items-center gap-1.5 pt-0.5 overflow-x-auto pb-0.5">
+            {[0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 3.0, 4.0].map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => handleScaleSliderChange(s)}
+                className={`px-2 py-0.5 rounded-lg text-[10px] font-mono transition-colors ${
+                  Math.abs(scaleSlider - s) < 0.02
+                    ? 'bg-indigo-600 text-white font-bold'
+                    : 'bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-white'
+                }`}
+              >
+                {s}x
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Format & Quality */}

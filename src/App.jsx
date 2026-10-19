@@ -46,6 +46,11 @@ export default function App() {
 
   // Foreground Controls
   const [padding, setPadding] = useState(0.08);
+  const [paddingX, setPaddingX] = useState(0.08);
+  const [paddingY, setPaddingY] = useState(0.08);
+  const [linkPadding, setLinkPadding] = useState(true);
+  const [fgFitMode, setFgFitMode] = useState('contain'); // 'contain' | 'cover' | 'fill-shortest'
+  const [fgScale, setFgScale] = useState(1.0);
   const [enableCornerRadius, setEnableCornerRadius] = useState(true);
   const [cornerRadius, setCornerRadius] = useState(24);
   const [shadowBlur, setShadowBlur] = useState(32);
@@ -122,6 +127,10 @@ export default function App() {
     bgSaturation,
     bgBrightness,
     padding,
+    paddingX,
+    paddingY,
+    fgFitMode,
+    fgScale,
     enableCornerRadius,
     cornerRadius,
     shadowBlur,
@@ -165,6 +174,62 @@ export default function App() {
     setPositionY(0);
   };
 
+  // Precise Margin Handlers
+  const handleSetPadding = (val) => {
+    const num = Math.max(0, Math.min(0.5, val));
+    setPadding(num);
+    if (linkPadding) {
+      setPaddingX(num);
+      setPaddingY(num);
+    }
+  };
+
+  const handleSetPaddingX = (val) => {
+    const num = Math.max(0, Math.min(0.5, val));
+    setPaddingX(num);
+    if (linkPadding) {
+      setPadding(num);
+      setPaddingY(num);
+    }
+  };
+
+  const handleSetPaddingY = (val) => {
+    const num = Math.max(0, Math.min(0.5, val));
+    setPaddingY(num);
+    if (linkPadding) {
+      setPadding(num);
+      setPaddingX(num);
+    }
+  };
+
+  // Calculate and flush the shortest margin side to 0%
+  const handleFlushShortestSide = useCallback(() => {
+    if (!image) return;
+    const isRotatedQuarter = (Math.abs(rotation) % 180) === 90;
+    const effW = isRotatedQuarter ? (image.naturalHeight || image.height) : (image.naturalWidth || image.width);
+    const effH = isRotatedQuarter ? (image.naturalWidth || image.width) : (image.naturalHeight || image.height);
+    const imgAspect = effW / effH;
+    const canvasAspect = previewDimensions.width / previewDimensions.height;
+
+    setLinkPadding(false);
+    if (imgAspect >= canvasAspect) {
+      // Horizontal side touches first -> Horizontal margin is shortest
+      setPaddingX(0);
+      showToast('Shortest side flushed: Horizontal margin set to 0%');
+    } else {
+      // Vertical side touches first -> Vertical margin is shortest
+      setPaddingY(0);
+      showToast('Shortest side flushed: Vertical margin set to 0%');
+    }
+  }, [image, rotation, previewDimensions]);
+
+  const handleClearAllMargins = useCallback(() => {
+    setPadding(0);
+    setPaddingX(0);
+    setPaddingY(0);
+    showToast('Edge-to-edge: all margins set to 0%');
+  }, []);
+
   const handleToggleCorners = () => {
     setEnableCornerRadius((prev) => {
       const next = !prev;
@@ -186,6 +251,11 @@ export default function App() {
     setShowBackground(true);
     setSolidBackgroundColor('#0b0f19');
     setPadding(0.08);
+    setPaddingX(0.08);
+    setPaddingY(0.08);
+    setLinkPadding(true);
+    setFgFitMode('contain');
+    setFgScale(1.0);
     setEnableCornerRadius(true);
     setCornerRadius(24);
     setShadowBlur(32);
@@ -333,7 +403,22 @@ export default function App() {
                     solidBackgroundColor={solidBackgroundColor}
                     setSolidBackgroundColor={setSolidBackgroundColor}
                     padding={padding}
-                    setPadding={setPadding}
+                    setPadding={handleSetPadding}
+                    paddingX={paddingX}
+                    setPaddingX={handleSetPaddingX}
+                    paddingY={paddingY}
+                    setPaddingY={handleSetPaddingY}
+                    linkPadding={linkPadding}
+                    setLinkPadding={setLinkPadding}
+                    fgFitMode={fgFitMode}
+                    setFgFitMode={setFgFitMode}
+                    fgScale={fgScale}
+                    setFgScale={setFgScale}
+                    onFlushShortestSide={handleFlushShortestSide}
+                    onClearAllMargins={handleClearAllMargins}
+                    image={image}
+                    previewDimensions={previewDimensions}
+                    rotation={rotation}
                     enableCornerRadius={enableCornerRadius}
                     setEnableCornerRadius={setEnableCornerRadius}
                     cornerRadius={cornerRadius}
