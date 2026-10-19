@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download, Sparkles, Share2, RefreshCw, Smartphone } from 'lucide-react';
+import { Download, Sparkles, RefreshCw, Smartphone, Layers } from 'lucide-react';
 
 export default function Header({
   onReset,
@@ -7,74 +7,64 @@ export default function Header({
   isInstallable,
   onInstall,
   onOpenShareGuide,
-  onOpenTrace,
   isStandalone,
 }) {
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md px-4 py-2.5 transition-all">
+    <header className="sticky top-0 z-30 w-full border-b border-[#3a3a3c] bg-[#1c1c1e]/90 backdrop-blur-md px-3 sm:px-4 py-2.5 transition-all">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-        {/* Logo & Title */}
-        <div className="flex items-center gap-3">
+        {/* Logo, Title & Version Info */}
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <img
             src="./icon.svg"
             alt="InstaCrop Logo"
-            className="w-9 h-9 rounded-xl shadow-md shadow-emerald-500/25 object-contain hover:scale-105 transition-transform"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl shadow-md object-contain transition-transform hover:scale-105 flex-shrink-0"
           />
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-[#e1e1e0] truncate">
                 InstaCrop
-                <span className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded-md bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-300 border border-indigo-500/30">
-                  Studio
-                </span>
               </h1>
+              {/* Version Info Badge */}
+              <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold tracking-wider rounded-md bg-[#2a2a2c] text-[#a9967f] border border-[#3a3a3c]">
+                v2.2.0
+              </span>
               {isStandalone && (
-                <span className="px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  PWA Active
+                <span className="hidden xs:inline-block px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-[#71b34f]/20 text-[#71b34f] border border-[#71b34f]/30">
+                  PWA
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-slate-400 leading-none mt-0.5 hidden xs:block">
-              Blurred Background & Aspect Canvas
+            <p className="text-[10px] sm:text-[11px] text-[#e1e1e0]/60 leading-none mt-0.5 truncate hidden sm:block">
+              Aesthetic Blurred Canvas & Aspect Ratio Studio
             </p>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-2">
-          {/* Trace Diagnostics Button */}
-          <button
-            onClick={onOpenTrace}
-            className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white text-xs font-medium transition-all shadow-sm"
-            title="Inspect Service Worker & Share Target event traces"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-[11px] font-mono">Trace</span>
-          </button>
-
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
           {/* Android Gallery Guide Button */}
           <button
             onClick={onOpenShareGuide}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white text-xs font-medium transition-all shadow-sm"
+            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-xl bg-[#2a2a2c] hover:bg-[#4a4a4c] border border-[#3a3a3c] text-[#e1e1e0] text-xs font-medium transition-all shadow-sm active:scale-95"
             title="How to share directly from Android Gallery"
           >
-            <Smartphone className="w-3.5 h-3.5 text-pink-400" />
-            <span className="hidden sm:inline">Android Share</span>
+            <Smartphone className="w-3.5 h-3.5 text-[#a9967f]" />
+            <span className="hidden xs:inline">Share Guide</span>
           </button>
 
           {/* PWA Install Button */}
           {!isStandalone && (
             <button
               onClick={isInstallable ? onInstall : onOpenShareGuide}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-semibold shadow-md transition-all ${
+              className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95 ${
                 isInstallable
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-indigo-600/30 animate-pulse'
-                  : 'bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 hover:text-white'
+                  ? 'bg-[#a9967f] hover:bg-[#7b7061] text-[#1c1c1e] shadow-[#a9967f]/20'
+                  : 'bg-[#2a2a2c] hover:bg-[#4a4a4c] border border-[#3a3a3c] text-[#e1e1e0]'
               }`}
-              title="Install InstaCrop as Android/Desktop app"
+              title="Install InstaCrop as mobile/desktop app"
             >
-              <Download className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Install App</span>
+              <Download className="w-3.5 h-3.5" />
+              <span>Install</span>
             </button>
           )}
 
@@ -82,7 +72,7 @@ export default function Header({
           {hasImage && (
             <button
               onClick={onReset}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-red-950/60 border border-slate-800 hover:border-red-800/60 text-slate-400 hover:text-red-300 text-xs font-medium transition-all"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#2a2a2c] hover:bg-[#F44336]/20 border border-[#3a3a3c] hover:border-[#F44336]/40 text-[#e1e1e0]/80 hover:text-[#F44336] text-xs font-medium transition-all active:scale-95"
               title="Upload another photo"
             >
               <RefreshCw className="w-3.5 h-3.5" />

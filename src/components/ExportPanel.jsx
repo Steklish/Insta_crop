@@ -122,7 +122,7 @@ export default function ExportPanel({
         particleCount: 50,
         spread: 60,
         origin: { y: 0.8 },
-        colors: ['#6366f1', '#a855f7', '#ec4899', '#38bdf8'],
+        colors: ['#a9967f', '#7b7061', '#e1e1e0', '#71b34f'],
       });
     } catch (e) {
       // ignore
@@ -207,14 +207,14 @@ export default function ExportPanel({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-[#a0a0a0]">
           Export & Resolution
         </h3>
         <div className="flex items-center gap-1.5">
-          <span className="text-[11px] font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20">
+          <span className="text-[11px] font-mono font-bold text-[#a9967f] bg-[#a9967f]/10 px-2 py-0.5 rounded-md border border-[#a9967f]/30">
             {exportDimensions.width} × {exportDimensions.height} px
           </span>
-          <span className="text-[10px] font-mono text-purple-300 bg-purple-500/10 px-1.5 py-0.5 rounded-md border border-purple-500/20">
+          <span className="text-[10px] font-mono text-[#e1e1e0] bg-[#3a3a3c] px-1.5 py-0.5 rounded-md border border-[#3a3a3c]">
             {megapixels} MP
           </span>
         </div>
@@ -235,12 +235,12 @@ export default function ExportPanel({
               }}
               className={`p-2.5 rounded-xl border text-left transition-all ${
                 isSelected
-                  ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-sm'
-                  : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900'
+                  ? 'bg-[#a9967f]/20 border-[#a9967f] text-[#e1e1e0] shadow-sm'
+                  : 'bg-[#252526] border-[#3a3a3c] text-[#a0a0a0] hover:text-[#e1e1e0] hover:bg-[#2a2a2c]'
               }`}
             >
               <div className="text-xs font-bold">{scale.label}</div>
-              <div className="text-[10px] text-slate-500 mt-0.5 leading-tight truncate">
+              <div className="text-[10px] text-[#a0a0a0] mt-0.5 leading-tight truncate">
                 {scale.desc}
               </div>
             </button>
@@ -249,12 +249,12 @@ export default function ExportPanel({
       </div>
 
       {/* Fine-Tuning & Custom Resolution Controls */}
-      <div className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 space-y-3">
+      <div className="p-3.5 rounded-2xl bg-[#252526] border border-[#3a3a3c] space-y-3">
         {/* Custom Exact Pixels Editor */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+            <span className="text-xs font-semibold text-[#e1e1e0] flex items-center gap-1.5">
+              <Sliders className="w-3.5 h-3.5 text-[#a9967f]" />
               <span>Exact Output Resolution (px)</span>
             </span>
             <button
@@ -262,8 +262,8 @@ export default function ExportPanel({
               onClick={() => setLockAspect(!lockAspect)}
               className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-semibold border transition-colors ${
                 lockAspect
-                  ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
-                  : 'bg-slate-800 text-slate-400 border-slate-700'
+                  ? 'bg-[#a9967f]/20 text-[#a9967f] border-[#a9967f]/40'
+                  : 'bg-[#3a3a3c] text-[#a0a0a0] border-[#3a3a3c]'
               }`}
               title={lockAspect ? 'Aspect ratio is locked. Width & Height scale together' : 'Aspect ratio is unlocked'}
             >
@@ -274,48 +274,48 @@ export default function ExportPanel({
 
           <div className="grid grid-cols-2 gap-2.5">
             <div>
-              <label className="block text-[10px] text-slate-400 font-medium mb-1">
+              <label className="block text-[10px] text-[#a0a0a0] font-medium mb-1">
                 Width (pixels)
               </label>
-              <div className="flex items-center bg-slate-950 border border-slate-800 focus-within:border-indigo-500 rounded-xl px-2.5 py-1.5">
+              <div className="flex items-center bg-[#1c1c1e] border border-[#3a3a3c] focus-within:border-[#a9967f] rounded-xl px-2.5 py-1.5">
                 <input
                   type="number"
                   min="64"
                   max="12000"
                   value={exportDimensions.width}
                   onChange={(e) => handleCustomWidthChange(e.target.value)}
-                  className="w-full bg-transparent text-white font-mono text-xs focus:outline-none"
+                  className="w-full bg-transparent text-[#e1e1e0] font-mono text-xs focus:outline-none"
                 />
-                <span className="text-[10px] text-slate-500 font-mono ml-1">px</span>
+                <span className="text-[10px] text-[#a0a0a0] font-mono ml-1">px</span>
               </div>
             </div>
 
             <div>
-              <label className="block text-[10px] text-slate-400 font-medium mb-1">
+              <label className="block text-[10px] text-[#a0a0a0] font-medium mb-1">
                 Height (pixels)
               </label>
-              <div className="flex items-center bg-slate-950 border border-slate-800 focus-within:border-indigo-500 rounded-xl px-2.5 py-1.5">
+              <div className="flex items-center bg-[#1c1c1e] border border-[#3a3a3c] focus-within:border-[#a9967f] rounded-xl px-2.5 py-1.5">
                 <input
                   type="number"
                   min="64"
                   max="12000"
                   value={exportDimensions.height}
                   onChange={(e) => handleCustomHeightChange(e.target.value)}
-                  className="w-full bg-transparent text-white font-mono text-xs focus:outline-none"
+                  className="w-full bg-transparent text-[#e1e1e0] font-mono text-xs focus:outline-none"
                 />
-                <span className="text-[10px] text-slate-500 font-mono ml-1">px</span>
+                <span className="text-[10px] text-[#a0a0a0] font-mono ml-1">px</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Continuous Scale Multiplier Slider */}
-        <div className="pt-2 border-t border-slate-800/80 space-y-1.5">
-          <div className="flex justify-between items-center text-[11px] font-medium text-slate-300">
+        <div className="pt-2 border-t border-[#3a3a3c] space-y-1.5">
+          <div className="flex justify-between items-center text-[11px] font-medium text-[#e1e1e0]">
             <span>Continuous Scaling Multiplier</span>
             <div className="flex items-center gap-1.5">
-              <span className="font-mono text-indigo-400 font-bold">{scaleSlider.toFixed(2)}x</span>
-              <span className="text-[10px] text-slate-500">
+              <span className="font-mono text-[#a9967f] font-bold">{scaleSlider.toFixed(2)}x</span>
+              <span className="text-[10px] text-[#a0a0a0]">
                 ({Math.round(baseDim.width * scaleSlider)}×{Math.round(baseDim.height * scaleSlider)})
               </span>
             </div>
@@ -328,7 +328,7 @@ export default function ExportPanel({
             step="0.05"
             value={scaleSlider}
             onChange={(e) => handleScaleSliderChange(parseFloat(e.target.value))}
-            className="w-full accent-indigo-500 cursor-pointer"
+            className="w-full accent-[#a9967f] cursor-pointer"
           />
 
           {/* Quick Multiplier Buttons */}
@@ -340,8 +340,8 @@ export default function ExportPanel({
                 onClick={() => handleScaleSliderChange(s)}
                 className={`px-2 py-0.5 rounded-lg text-[10px] font-mono transition-colors ${
                   Math.abs(scaleSlider - s) < 0.02
-                    ? 'bg-indigo-600 text-white font-bold'
-                    : 'bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-white'
+                    ? 'bg-[#a9967f] text-[#1c1c1e] font-bold'
+                    : 'bg-[#1c1c1e] hover:bg-[#3a3a3c] text-[#a0a0a0] hover:text-[#e1e1e0]'
                 }`}
               >
                 {s}x
@@ -352,9 +352,9 @@ export default function ExportPanel({
       </div>
 
       {/* Format & Quality */}
-      <div className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 space-y-3">
+      <div className="p-3.5 rounded-2xl bg-[#252526] border border-[#3a3a3c] space-y-3">
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 mb-1.5">
+          <label className="block text-[11px] font-semibold text-[#a0a0a0] mb-1.5">
             File Format
           </label>
           <div className="grid grid-cols-3 gap-2">
@@ -364,8 +364,8 @@ export default function ExportPanel({
                 onClick={() => setExportFormat(fmt.id)}
                 className={`py-2 px-3 rounded-xl border text-center transition-all ${
                   exportFormat === fmt.id
-                    ? 'bg-indigo-600 text-white border-indigo-500 font-bold'
-                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                    ? 'bg-[#a9967f] text-[#1c1c1e] border-[#a9967f] font-bold shadow-sm'
+                    : 'bg-[#1c1c1e] border-[#3a3a3c] text-[#a0a0a0] hover:text-[#e1e1e0] hover:bg-[#2a2a2c]'
                 }`}
               >
                 <div className="text-xs font-bold">{fmt.label}</div>
@@ -377,9 +377,9 @@ export default function ExportPanel({
         {/* JPEG Quality Slider */}
         {exportFormat === 'image/jpeg' && (
           <div className="space-y-1 pt-1 animate-fade-in">
-            <div className="flex justify-between text-[11px] font-medium text-slate-300">
+            <div className="flex justify-between text-[11px] font-medium text-[#e1e1e0]">
               <span>JPEG Quality</span>
-              <span className="font-mono text-indigo-400">{Math.round(jpegQuality * 100)}%</span>
+              <span className="font-mono text-[#a9967f]">{Math.round(jpegQuality * 100)}%</span>
             </div>
             <input
               type="range"
@@ -388,32 +388,32 @@ export default function ExportPanel({
               step="0.02"
               value={jpegQuality}
               onChange={(e) => setJpegQuality(parseFloat(e.target.value))}
-              className="w-full accent-indigo-500 cursor-pointer"
+              className="w-full accent-[#a9967f] cursor-pointer"
             />
           </div>
         )}
 
         {/* Filename Input */}
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+          <label className="block text-[11px] font-semibold text-[#a0a0a0] mb-1">
             Export Filename
           </label>
-          <div className="flex items-center rounded-xl bg-slate-950 border border-slate-800 focus-within:border-indigo-500 overflow-hidden px-3 py-1.5">
+          <div className="flex items-center rounded-xl bg-[#1c1c1e] border border-[#3a3a3c] focus-within:border-[#a9967f] overflow-hidden px-3 py-1.5">
             <input
               type="text"
               value={filename}
               onChange={(e) => setFilename(e.target.value)}
-              className="bg-transparent text-white text-xs font-mono flex-1 focus:outline-none"
+              className="bg-transparent text-[#e1e1e0] text-xs font-mono flex-1 focus:outline-none"
               placeholder="Filename"
             />
-            <span className="text-slate-500 text-xs font-mono">.{selectedFormatObj.ext}</span>
+            <span className="text-[#a0a0a0] text-xs font-mono">.{selectedFormatObj.ext}</span>
           </div>
         </div>
       </div>
 
       {/* Error Message */}
       {errorMessage && (
-        <div className="p-3 rounded-xl bg-red-950/40 border border-red-800/60 text-xs text-red-300 flex items-center gap-2">
+        <div className="p-3 rounded-xl bg-[#F44336]/10 border border-[#F44336]/30 text-xs text-[#F44336] flex items-center gap-2">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -425,7 +425,7 @@ export default function ExportPanel({
         <button
           onClick={handleDownload}
           disabled={isExporting}
-          className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white text-sm font-bold shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+          className="w-full py-3.5 px-4 rounded-2xl bg-[#a9967f] hover:bg-[#7b7061] text-[#1c1c1e] text-sm font-bold shadow-lg shadow-[#a9967f]/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
         >
           {isExporting ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -442,10 +442,10 @@ export default function ExportPanel({
           <button
             onClick={handleNativeShare}
             disabled={isExporting}
-            className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+            className="py-2.5 px-3 rounded-xl bg-[#2a2a2c] hover:bg-[#3a3a3c] border border-[#3a3a3c] text-[#e1e1e0] text-xs font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
             title="Share directly into Instagram, WhatsApp, or other apps"
           >
-            <Share2 className="w-4 h-4 text-pink-400" />
+            <Share2 className="w-4 h-4 text-[#a9967f]" />
             <span>Share to Apps</span>
           </button>
 
@@ -453,12 +453,12 @@ export default function ExportPanel({
           <button
             onClick={handleCopyClipboard}
             disabled={isExporting}
-            className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+            className="py-2.5 px-3 rounded-xl bg-[#2a2a2c] hover:bg-[#3a3a3c] border border-[#3a3a3c] text-[#e1e1e0] text-xs font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
           >
             {copied ? (
-              <Check className="w-4 h-4 text-emerald-400" />
+              <Check className="w-4 h-4 text-[#71b34f]" />
             ) : (
-              <Copy className="w-4 h-4 text-indigo-400" />
+              <Copy className="w-4 h-4 text-[#a9967f]" />
             )}
             <span>{copied ? 'Copied Image!' : 'Copy to Clipboard'}</span>
           </button>

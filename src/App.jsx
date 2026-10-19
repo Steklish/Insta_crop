@@ -6,7 +6,6 @@ import PresetSelector from './components/PresetSelector';
 import ControlSliders from './components/ControlSliders';
 import ExportPanel from './components/ExportPanel';
 import AndroidShareModal from './components/AndroidShareModal';
-import TraceModal from './components/TraceModal';
 import { ASPECT_RATIO_PRESETS } from './constants/presets';
 import {
   calculateCanvasDimensions,
@@ -69,7 +68,6 @@ export default function App() {
 
   // Modals & Notifications
   const [isShareGuideOpen, setIsShareGuideOpen] = useState(false);
-  const [isTraceModalOpen, setIsTraceModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
 
   const canvasRef = useRef(null);
@@ -276,11 +274,11 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans pb-16 lg:pb-0">
+    <div className="min-h-screen flex flex-col bg-[#1c1c1e] text-[#e1e1e0] font-sans pb-24 lg:pb-6">
       {/* Toast Notification */}
       {toast && (
-        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-indigo-600 text-white text-xs font-semibold shadow-xl shadow-indigo-600/40 border border-indigo-400/40 animate-fade-in">
-          <Sparkles className="w-4 h-4 text-pink-300" />
+        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#2a2a2c] text-[#e1e1e0] text-xs font-semibold shadow-2xl shadow-black/60 border border-[#a9967f]/50 animate-fade-in">
+          <Sparkles className="w-4 h-4 text-[#a9967f]" />
           <span>{toast}</span>
         </div>
       )}
@@ -292,19 +290,18 @@ export default function App() {
         isInstallable={isInstallable}
         onInstall={installPwa}
         onOpenShareGuide={() => setIsShareGuideOpen(true)}
-        onOpenTrace={() => setIsTraceModalOpen(true)}
         isStandalone={isStandalone}
       />
 
       {/* Main Studio Viewport */}
-      <main className="flex-1 w-full max-w-7xl mx-auto p-3 sm:p-5">
+      <main className="flex-1 w-full max-w-7xl mx-auto p-2.5 sm:p-5">
         {!image ? (
           <EmptyState
             onFileSelect={(file) => handleLoadImage(file, file.name)}
             onSampleSelect={(url) => handleLoadImage(url, 'sample.jpg')}
           />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-start">
             {/* LEFT COLUMN: Canvas Preview */}
             <div className="lg:col-span-7 xl:col-span-8 lg:sticky lg:top-18">
               <CanvasPreview
@@ -326,15 +323,15 @@ export default function App() {
             </div>
 
             {/* RIGHT COLUMN: Controls & Settings */}
-            <div className="lg:col-span-5 xl:col-span-4 space-y-5">
-              {/* Desktop Sub-tabs or Mobile Tab Content */}
-              <div className="hidden lg:flex rounded-2xl bg-slate-900/80 p-1 border border-slate-800">
+            <div className="lg:col-span-5 xl:col-span-4 space-y-4 sm:space-y-5">
+              {/* Desktop Sub-tabs */}
+              <div className="hidden lg:flex rounded-2xl bg-[#252526] p-1 border border-[#3a3a3c]">
                 <button
                   onClick={() => setMobileTab('preset')}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                     mobileTab === 'preset'
-                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-[#a9967f] text-[#1c1c1e] shadow-md shadow-[#a9967f]/20 font-extrabold'
+                      : 'text-[#e1e1e0]/70 hover:text-white'
                   }`}
                 >
                   <Grid3X3 className="w-3.5 h-3.5" />
@@ -345,8 +342,8 @@ export default function App() {
                   onClick={() => setMobileTab('adjust')}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                     mobileTab === 'adjust'
-                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-[#a9967f] text-[#1c1c1e] shadow-md shadow-[#a9967f]/20 font-extrabold'
+                      : 'text-[#e1e1e0]/70 hover:text-white'
                   }`}
                 >
                   <Sliders className="w-3.5 h-3.5" />
@@ -357,8 +354,8 @@ export default function App() {
                   onClick={() => setMobileTab('export')}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                     mobileTab === 'export'
-                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-[#a9967f] text-[#1c1c1e] shadow-md shadow-[#a9967f]/20 font-extrabold'
+                      : 'text-[#e1e1e0]/70 hover:text-white'
                   }`}
                 >
                   <Download className="w-3.5 h-3.5" />
@@ -367,7 +364,7 @@ export default function App() {
               </div>
 
               {/* Dynamic Tab Content (Active on both desktop and mobile according to mobileTab) */}
-              <div className="bg-slate-950/70 rounded-3xl p-4 sm:p-5 border border-slate-800/80 shadow-xl">
+              <div className="bg-[#2a2a2c] rounded-3xl p-3.5 sm:p-5 border border-[#3a3a3c] shadow-2xl">
                 {mobileTab === 'preset' && (
                   <PresetSelector
                     selectedPreset={selectedPreset}
@@ -459,41 +456,41 @@ export default function App() {
 
       {/* Mobile Bottom Navigation Bar (Visible only on mobile screens when image is loaded) */}
       {image && (
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800 px-3 py-2 flex items-center justify-around">
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#1c1c1e]/95 backdrop-blur-xl border-t border-[#3a3a3c] px-4 py-2 safe-area-bottom flex items-center justify-around shadow-2xl">
           <button
             onClick={() => setMobileTab('preset')}
-            className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
+            className={`flex flex-col items-center gap-1 py-1 px-4 rounded-xl transition-all ${
               mobileTab === 'preset'
-                ? 'text-indigo-400 font-bold scale-105'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'text-[#a9967f] font-extrabold scale-105'
+                : 'text-[#e1e1e0]/50 hover:text-[#e1e1e0]'
             }`}
           >
             <Grid3X3 className="w-5 h-5" />
-            <span className="text-[10px]">Presets</span>
+            <span className="text-[10px] font-medium tracking-wide">Presets</span>
           </button>
 
           <button
             onClick={() => setMobileTab('adjust')}
-            className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
+            className={`flex flex-col items-center gap-1 py-1 px-4 rounded-xl transition-all ${
               mobileTab === 'adjust'
-                ? 'text-indigo-400 font-bold scale-105'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'text-[#a9967f] font-extrabold scale-105'
+                : 'text-[#e1e1e0]/50 hover:text-[#e1e1e0]'
             }`}
           >
             <Sliders className="w-5 h-5" />
-            <span className="text-[10px]">Adjust</span>
+            <span className="text-[10px] font-medium tracking-wide">Adjust</span>
           </button>
 
           <button
             onClick={() => setMobileTab('export')}
-            className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
+            className={`flex flex-col items-center gap-1 py-1 px-4 rounded-xl transition-all ${
               mobileTab === 'export'
-                ? 'text-indigo-400 font-bold scale-105'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'text-[#a9967f] font-extrabold scale-105'
+                : 'text-[#e1e1e0]/50 hover:text-[#e1e1e0]'
             }`}
           >
             <Download className="w-5 h-5" />
-            <span className="text-[10px]">Export</span>
+            <span className="text-[10px] font-medium tracking-wide">Export</span>
           </button>
         </nav>
       )}
@@ -504,13 +501,6 @@ export default function App() {
         onClose={() => setIsShareGuideOpen(false)}
         isInstallable={isInstallable}
         onInstall={installPwa}
-      />
-
-      {/* Live Share Target Trace & Diagnostics Modal */}
-      <TraceModal
-        isOpen={isTraceModalOpen}
-        onClose={() => setIsTraceModalOpen(false)}
-        onSimulateShare={handleLoadImage}
       />
     </div>
   );

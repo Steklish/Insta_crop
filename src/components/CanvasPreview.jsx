@@ -23,14 +23,14 @@ export default function CanvasPreview({
   const stopComparing = () => setIsComparing(false);
 
   return (
-    <div className="relative w-full flex flex-col items-center justify-center p-3 sm:p-6 bg-slate-950/60 rounded-3xl border border-slate-800/80 shadow-2xl overflow-hidden min-h-[360px] lg:min-h-[500px]">
+    <div className="relative w-full flex flex-col items-center justify-center p-2.5 sm:p-5 bg-[#2a2a2c] rounded-3xl border border-[#3a3a3c] shadow-2xl overflow-hidden min-h-[290px] lg:min-h-[460px]">
       {/* Top Info Bar */}
-      <div className="w-full flex items-center justify-between gap-2 mb-3 px-1 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-semibold tracking-wide">
+      <div className="w-full flex items-center justify-between gap-2 mb-2.5 px-1 text-xs">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <span className="px-2.5 py-1 rounded-full bg-[#252526] border border-[#3a3a3c] text-[#e1e1e0] font-semibold tracking-wide text-[11px] sm:text-xs">
             {preset.name} ({preset.label})
           </span>
-          <span className="text-slate-400 font-mono text-[11px] hidden xs:inline">
+          <span className="text-[#e1e1e0]/60 font-mono text-[10px] sm:text-[11px]">
             {targetDimensions.width} × {targetDimensions.height} px
           </span>
         </div>
@@ -43,24 +43,24 @@ export default function CanvasPreview({
           onMouseLeave={stopComparing}
           onTouchStart={startComparing}
           onTouchEnd={stopComparing}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all select-none ${
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold transition-all select-none active:scale-95 ${
             isComparing
-              ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/30'
-              : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
+              ? 'bg-[#a9967f] text-[#1c1c1e] shadow-md shadow-[#a9967f]/30'
+              : 'bg-[#252526] hover:bg-[#4a4a4c] text-[#e1e1e0] border border-[#3a3a3c]'
           }`}
           title="Press and hold to compare with source image"
         >
-          <Eye className="w-3.5 h-3.5" />
-          <span>{isComparing ? 'Showing Original' : 'Hold to Compare'}</span>
+          <Eye className="w-3.5 h-3.5 text-[#a9967f]" />
+          <span>{isComparing ? 'Original' : 'Compare'}</span>
         </button>
       </div>
 
-      {/* Canvas Viewport Frame */}
-      <div className="relative flex items-center justify-center max-w-full max-h-[55vh] sm:max-h-[62vh] rounded-2xl overflow-hidden canvas-checkerboard border border-slate-800/80 shadow-inner">
+      {/* Canvas Viewport Frame (Optimized max-height for mobile screens) */}
+      <div className="relative flex items-center justify-center max-w-full max-h-[48vh] sm:max-h-[58vh] rounded-2xl overflow-hidden canvas-checkerboard border border-[#3a3a3c] shadow-inner">
         {/* The Live Render Canvas */}
         <canvas
           ref={canvasRef}
-          className={`max-w-full max-h-[55vh] sm:max-h-[62vh] object-contain transition-opacity duration-150 ${
+          className={`max-w-full max-h-[48vh] sm:max-h-[58vh] object-contain transition-opacity duration-150 ${
             isComparing ? 'opacity-0' : 'opacity-100'
           }`}
           style={{
@@ -70,13 +70,13 @@ export default function CanvasPreview({
 
         {/* Raw Image Overlay when comparing */}
         {isComparing && originalImage && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/85 backdrop-blur-xs p-3 animate-fade-in">
             <img
               src={originalImage.src}
               alt="Original Unedited"
               className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
             />
-            <div className="absolute bottom-4 px-3 py-1 bg-black/70 backdrop-blur-md text-amber-400 text-xs font-bold rounded-full border border-amber-500/30">
+            <div className="absolute bottom-3 px-3 py-1 bg-[#2a2a2c]/90 backdrop-blur-md text-[#a9967f] text-xs font-bold rounded-full border border-[#a9967f]/40">
               Original Unedited Photo
             </div>
           </div>
@@ -84,49 +84,49 @@ export default function CanvasPreview({
       </div>
 
       {/* Floating Canvas Quick Controls Toolbar */}
-      <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+      <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 w-full">
         <button
           onClick={onRotate}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-medium border border-slate-800 transition-all active:scale-95 shadow-sm"
+          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#252526] hover:bg-[#4a4a4c] text-[#e1e1e0] text-xs font-medium border border-[#3a3a3c] transition-all active:scale-95 shadow-sm"
           title="Rotate 90 degrees clockwise"
         >
-          <RotateCw className="w-3.5 h-3.5 text-indigo-400" />
+          <RotateCw className="w-3.5 h-3.5 text-[#a9967f]" />
           <span>Rotate ({rotation}°)</span>
         </button>
 
         <button
           onClick={onFlipH}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all active:scale-95 shadow-sm ${
+          className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-medium border transition-all active:scale-95 shadow-sm ${
             flipH
-              ? 'bg-indigo-600/30 border-indigo-500 text-indigo-300'
-              : 'bg-slate-900 hover:bg-slate-800 border-slate-800 text-slate-300 hover:text-white'
+              ? 'bg-[#a9967f]/20 border-[#a9967f] text-[#a9967f]'
+              : 'bg-[#252526] hover:bg-[#4a4a4c] border-[#3a3a3c] text-[#e1e1e0]'
           }`}
           title="Flip horizontally"
         >
-          <FlipHorizontal className="w-3.5 h-3.5 text-pink-400" />
+          <FlipHorizontal className="w-3.5 h-3.5" />
           <span>Flip H</span>
         </button>
 
         <button
           onClick={onFlipV}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all active:scale-95 shadow-sm ${
+          className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-medium border transition-all active:scale-95 shadow-sm ${
             flipV
-              ? 'bg-indigo-600/30 border-indigo-500 text-indigo-300'
-              : 'bg-slate-900 hover:bg-slate-800 border-slate-800 text-slate-300 hover:text-white'
+              ? 'bg-[#a9967f]/20 border-[#a9967f] text-[#a9967f]'
+              : 'bg-[#252526] hover:bg-[#4a4a4c] border-[#3a3a3c] text-[#e1e1e0]'
           }`}
           title="Flip vertically"
         >
-          <FlipVertical className="w-3.5 h-3.5 text-purple-400" />
+          <FlipVertical className="w-3.5 h-3.5" />
           <span>Flip V</span>
         </button>
 
         {/* Quick Corner Rounding Toggle */}
         <button
           onClick={onToggleCorners}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all active:scale-95 shadow-sm ${
+          className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-medium border transition-all active:scale-95 shadow-sm ${
             enableCornerRadius && cornerRadius > 0
-              ? 'bg-indigo-600/30 border-indigo-500 text-indigo-300'
-              : 'bg-slate-900 hover:bg-slate-800 border-slate-800 text-slate-400 hover:text-slate-200'
+              ? 'bg-[#a9967f]/20 border-[#a9967f] text-[#a9967f]'
+              : 'bg-[#252526] hover:bg-[#4a4a4c] border-[#3a3a3c] text-[#e1e1e0]/60'
           }`}
           title={
             enableCornerRadius && cornerRadius > 0
@@ -134,17 +134,17 @@ export default function CanvasPreview({
               : 'Turn on rounded corners'
           }
         >
-          <Square className="w-3.5 h-3.5 text-amber-400" />
+          <Square className="w-3.5 h-3.5" />
           <span>Corners: {enableCornerRadius && cornerRadius > 0 ? `${cornerRadius}px` : 'Sharp'}</span>
         </button>
 
         <button
           onClick={onResetPosition}
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 text-xs font-medium border border-slate-800 transition-all active:scale-95"
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#252526] hover:bg-[#4a4a4c] text-[#e1e1e0]/70 hover:text-[#e1e1e0] text-xs font-medium border border-[#3a3a3c] transition-all active:scale-95"
           title="Re-center position"
         >
           <Move className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Center</span>
+          <span className="hidden xs:inline">Center</span>
         </button>
       </div>
     </div>
