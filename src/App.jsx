@@ -11,6 +11,10 @@ import {
   renderCanvas,
   loadImageFromSource,
 } from './utils/canvas';
+import {
+  loadLastUsedSettings,
+  saveLastUsedSettings,
+} from './utils/presetStorage';
 import { useShareTarget } from './hooks/useShareTarget';
 import { addTrace } from './utils/tracer';
 import {
@@ -27,35 +31,44 @@ export default function App() {
   const [image, setImage] = useState(null);
   const [originalFilename, setOriginalFilename] = useState('photo.jpg');
 
+  // Load last-used preferences from device storage
+  const initialSettings = useRef(loadLastUsedSettings()).current;
+
   // Preset & Canvas Dimension State
-  const [selectedPreset, setSelectedPreset] = useState(ASPECT_RATIO_PRESETS[1]); // Default to 4:5 Portrait
-  const [customWidth, setCustomWidth] = useState(1080);
-  const [customHeight, setCustomHeight] = useState(1080);
+  const [selectedPreset, setSelectedPreset] = useState(() => {
+    if (initialSettings?.presetId) {
+      const match = ASPECT_RATIO_PRESETS.find((p) => p.id === initialSettings.presetId);
+      if (match) return match;
+    }
+    return ASPECT_RATIO_PRESETS[1]; // Default to 4:5 Portrait
+  });
+  const [customWidth, setCustomWidth] = useState(() => initialSettings?.customWidth ?? 1080);
+  const [customHeight, setCustomHeight] = useState(() => initialSettings?.customHeight ?? 1350);
 
   // Background Controls
-  const [blur, setBlur] = useState(28);
-  const [bgScale, setBgScale] = useState(1.25);
-  const [darken, setDarken] = useState(0.25);
-  const [tintColor, setTintColor] = useState('#000000');
-  const [bgSaturation, setBgSaturation] = useState(120);
-  const [bgBrightness, setBgBrightness] = useState(95);
-  const [showBackground, setShowBackground] = useState(true);
-  const [solidBackgroundColor, setSolidBackgroundColor] = useState('#0b0f19');
+  const [blur, setBlur] = useState(() => initialSettings?.blur ?? 28);
+  const [bgScale, setBgScale] = useState(() => initialSettings?.bgScale ?? 1.25);
+  const [darken, setDarken] = useState(() => initialSettings?.darken ?? 0.25);
+  const [tintColor, setTintColor] = useState(() => initialSettings?.tintColor ?? '#000000');
+  const [bgSaturation, setBgSaturation] = useState(() => initialSettings?.bgSaturation ?? 120);
+  const [bgBrightness, setBgBrightness] = useState(() => initialSettings?.bgBrightness ?? 95);
+  const [showBackground, setShowBackground] = useState(() => initialSettings?.showBackground ?? true);
+  const [solidBackgroundColor, setSolidBackgroundColor] = useState(() => initialSettings?.solidBackgroundColor ?? '#0b0f19');
 
   // Foreground Controls
-  const [padding, setPadding] = useState(0.08);
-  const [paddingX, setPaddingX] = useState(0.08);
-  const [paddingY, setPaddingY] = useState(0.08);
-  const [linkPadding, setLinkPadding] = useState(true);
-  const [fgFitMode, setFgFitMode] = useState('contain'); // 'contain' | 'cover' | 'fill-shortest'
-  const [fgScale, setFgScale] = useState(1.0);
-  const [enableCornerRadius, setEnableCornerRadius] = useState(true);
-  const [cornerRadius, setCornerRadius] = useState(24);
-  const [shadowBlur, setShadowBlur] = useState(32);
-  const [shadowOpacity, setShadowOpacity] = useState(0.45);
-  const [shadowOffsetY, setShadowOffsetY] = useState(12);
-  const [borderWidth, setBorderWidth] = useState(0);
-  const [borderColor, setBorderColor] = useState('#ffffff');
+  const [padding, setPadding] = useState(() => initialSettings?.padding ?? 0.08);
+  const [paddingX, setPaddingX] = useState(() => initialSettings?.paddingX ?? 0.08);
+  const [paddingY, setPaddingY] = useState(() => initialSettings?.paddingY ?? 0.08);
+  const [linkPadding, setLinkPadding] = useState(() => initialSettings?.linkPadding ?? true);
+  const [fgFitMode, setFgFitMode] = useState(() => initialSettings?.fgFitMode ?? 'contain');
+  const [fgScale, setFgScale] = useState(() => initialSettings?.fgScale ?? 1.0);
+  const [enableCornerRadius, setEnableCornerRadius] = useState(() => initialSettings?.enableCornerRadius ?? true);
+  const [cornerRadius, setCornerRadius] = useState(() => initialSettings?.cornerRadius ?? 24);
+  const [shadowBlur, setShadowBlur] = useState(() => initialSettings?.shadowBlur ?? 32);
+  const [shadowOpacity, setShadowOpacity] = useState(() => initialSettings?.shadowOpacity ?? 0.45);
+  const [shadowOffsetY, setShadowOffsetY] = useState(() => initialSettings?.shadowOffsetY ?? 12);
+  const [borderWidth, setBorderWidth] = useState(() => initialSettings?.borderWidth ?? 0);
+  const [borderColor, setBorderColor] = useState(() => initialSettings?.borderColor ?? '#ffffff');
   const [rotation, setRotation] = useState(0);
   const [flipH, setFlipH] = useState(false);
   const [flipV, setFlipV] = useState(false);
@@ -267,6 +280,99 @@ export default function App() {
     showToast('Adjustments reset to defaults');
   };
 
+  // Apply preset settings payload (from custom preset or file import)
+  const handleApplyPresetSettings = useCallback((settings) => {
+    if (!settings) return;
+    if (settings.presetId) {
+      const match = ASPECT_RATIO_PRESETS.find((p) => p.id === settings.presetId);
+      if (match) setSelectedPreset(match);
+    }
+    if (typeof settings.customWidth === 'number') setCustomWidth(settings.customWidth);
+    if (typeof settings.customHeight === 'number') setCustomHeight(settings.customHeight);
+    if (typeof settings.blur === 'number') setBlur(settings.blur);
+    if (typeof settings.bgScale === 'number') setBgScale(settings.bgScale);
+    if (typeof settings.darken === 'number') setDarken(settings.darken);
+    if (typeof settings.tintColor === 'string') setTintColor(settings.tintColor);
+    if (typeof settings.bgSaturation === 'number') setBgSaturation(settings.bgSaturation);
+    if (typeof settings.bgBrightness === 'number') setBgBrightness(settings.bgBrightness);
+    if (typeof settings.showBackground === 'boolean') setShowBackground(settings.showBackground);
+    if (typeof settings.solidBackgroundColor === 'string') setSolidBackgroundColor(settings.solidBackgroundColor);
+    if (typeof settings.padding === 'number') setPadding(settings.padding);
+    if (typeof settings.paddingX === 'number') setPaddingX(settings.paddingX);
+    if (typeof settings.paddingY === 'number') setPaddingY(settings.paddingY);
+    if (typeof settings.linkPadding === 'boolean') setLinkPadding(settings.linkPadding);
+    if (typeof settings.fgFitMode === 'string') setFgFitMode(settings.fgFitMode);
+    if (typeof settings.fgScale === 'number') setFgScale(settings.fgScale);
+    if (typeof settings.enableCornerRadius === 'boolean') setEnableCornerRadius(settings.enableCornerRadius);
+    if (typeof settings.cornerRadius === 'number') setCornerRadius(settings.cornerRadius);
+    if (typeof settings.shadowBlur === 'number') setShadowBlur(settings.shadowBlur);
+    if (typeof settings.shadowOpacity === 'number') setShadowOpacity(settings.shadowOpacity);
+    if (typeof settings.shadowOffsetY === 'number') setShadowOffsetY(settings.shadowOffsetY);
+    if (typeof settings.borderWidth === 'number') setBorderWidth(settings.borderWidth);
+    if (typeof settings.borderColor === 'string') setBorderColor(settings.borderColor);
+  }, []);
+
+  // Snapshot of current active settings
+  const currentSettings = {
+    presetId: selectedPreset.id,
+    customWidth,
+    customHeight,
+    blur,
+    bgScale,
+    darken,
+    tintColor,
+    bgSaturation,
+    bgBrightness,
+    showBackground,
+    solidBackgroundColor,
+    padding,
+    paddingX,
+    paddingY,
+    linkPadding,
+    fgFitMode,
+    fgScale,
+    enableCornerRadius,
+    cornerRadius,
+    shadowBlur,
+    shadowOpacity,
+    shadowOffsetY,
+    borderWidth,
+    borderColor,
+  };
+
+  // Debounced auto-save of current settings as last-used
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      saveLastUsedSettings(currentSettings);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [
+    selectedPreset.id,
+    customWidth,
+    customHeight,
+    blur,
+    bgScale,
+    darken,
+    tintColor,
+    bgSaturation,
+    bgBrightness,
+    showBackground,
+    solidBackgroundColor,
+    padding,
+    paddingX,
+    paddingY,
+    linkPadding,
+    fgFitMode,
+    fgScale,
+    enableCornerRadius,
+    cornerRadius,
+    shadowBlur,
+    shadowOpacity,
+    shadowOffsetY,
+    borderWidth,
+    borderColor,
+  ]);
+
   const handleResetAll = () => {
     setImage(null);
   };
@@ -371,6 +477,9 @@ export default function App() {
                         ? { width: image.naturalWidth, height: image.naturalHeight }
                         : null
                     }
+                    currentSettings={currentSettings}
+                    onApplyPresetSettings={handleApplyPresetSettings}
+                    onToast={showToast}
                   />
                 )}
 
