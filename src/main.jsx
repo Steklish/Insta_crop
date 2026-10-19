@@ -7,9 +7,19 @@ import App from './App.jsx'
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     try {
-      const swUrl = new URL('sw.js', window.location.href).href;
+      let path = window.location.pathname;
+      if (!path.endsWith('/')) {
+        if (path.includes('.')) {
+          path = path.slice(0, path.lastIndexOf('/') + 1);
+        } else {
+          path = path + '/';
+        }
+      }
+      const swUrl = new URL('sw.js', window.location.origin + path).href;
+      const scopeUrl = window.location.origin + path;
+
       navigator.serviceWorker
-        .register(swUrl)
+        .register(swUrl, { scope: scopeUrl })
         .then((reg) => {
           console.log('[PWA] Service Worker registered with scope:', reg.scope);
           reg.update();

@@ -63,14 +63,18 @@ export default function Header({
           </button>
 
           {/* PWA Install Button */}
-          {isInstallable && (
+          {!isStandalone && (
             <button
-              onClick={onInstall}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/30 transition-all animate-pulse"
+              onClick={isInstallable ? onInstall : onOpenShareGuide}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-semibold shadow-md transition-all ${
+                isInstallable
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-indigo-600/30 animate-pulse'
+                  : 'bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 hover:text-white'
+              }`}
               title="Install InstaCrop as Android/Desktop app"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Install PWA</span>
+              <Download className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Install App</span>
             </button>
           )}
 
