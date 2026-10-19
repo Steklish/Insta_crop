@@ -6,6 +6,13 @@
     <title>InstaCrop - Blurred Background Canvas Studio</title>
     <meta name="description" content="Turn any photo into gorgeous Instagram posts, Stories, and Reels with aesthetic blurred background padding and custom aspect ratios." />
     
+    <script>
+      // Ensure trailing slash on GitHub Pages so relative resources (manifest, Service Worker) resolve within repository scope
+      if (window.location.pathname && !window.location.pathname.endsWith('/') && !window.location.pathname.includes('.')) {
+        window.location.replace(window.location.pathname + '/' + window.location.search + window.location.hash);
+      }
+    </script>
+
     <!-- PWA & Mobile Web App Meta -->
     <meta name="theme-color" content="#0b0f19" />
     <meta name="color-scheme" content="dark" />

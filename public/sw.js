@@ -121,8 +121,11 @@ self.addEventListener('fetch', (event) => {
           console.error('[SW] Error processing share_target upload:', err);
         }
 
-        // Redirect back to app root with query parameter signaling new shared media
-        const redirectUrl = new URL('./?shared=1&t=' + Date.now(), self.registration.scope).href;
+        // Ensure redirect stays inside repository scope on GitHub Pages
+        const scope = self.registration.scope.endsWith('/')
+          ? self.registration.scope
+          : self.registration.scope + '/';
+        const redirectUrl = new URL('?shared=1&t=' + Date.now(), scope).href;
         return Response.redirect(redirectUrl, 303);
       })()
     );

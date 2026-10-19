@@ -112,8 +112,10 @@ export function useShareTarget({ onImageReceived }) {
       setTimeout(() => checkSharedMedia(), 100);
       setTimeout(() => checkSharedMedia(), 400);
 
-      // Clean query params
-      const cleanUrl = window.location.pathname;
+      // Clean query params while preserving repository trailing slash
+      const cleanUrl = window.location.pathname.endsWith('/')
+        ? window.location.pathname
+        : window.location.pathname + '/';
       window.history.replaceState({}, document.title, cleanUrl);
     }
 

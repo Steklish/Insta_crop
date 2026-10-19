@@ -2,8 +2,8 @@
   "name": "InstaCrop - Blurred Background Canvas Studio",
   "short_name": "InstaCrop",
   "description": "Transform any photo with aesthetic blurred background padding and custom aspect ratios for Instagram, Stories, Reels, and more.",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": ".",
+  "scope": ".",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0b0f19",
@@ -36,7 +36,7 @@
     }
   ],
   "share_target": {
-    "action": "./share-target",
+    "action": "share-target",
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {
@@ -47,7 +47,14 @@
         {
           "name": "image",
           "accept": [
-            "image/*"
+            "image/*",
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".webp",
+            ".gif",
+            ".avif",
+            ".heic"
           ]
         }
       ]
