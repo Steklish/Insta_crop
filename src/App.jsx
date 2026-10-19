@@ -44,6 +44,7 @@ export default function App() {
 
   // Foreground Controls
   const [padding, setPadding] = useState(0.08);
+  const [enableCornerRadius, setEnableCornerRadius] = useState(true);
   const [cornerRadius, setCornerRadius] = useState(24);
   const [shadowBlur, setShadowBlur] = useState(32);
   const [shadowOpacity, setShadowOpacity] = useState(0.45);
@@ -114,6 +115,7 @@ export default function App() {
     bgSaturation,
     bgBrightness,
     padding,
+    enableCornerRadius,
     cornerRadius,
     shadowBlur,
     shadowOpacity,
@@ -156,6 +158,17 @@ export default function App() {
     setPositionY(0);
   };
 
+  const handleToggleCorners = () => {
+    setEnableCornerRadius((prev) => {
+      const next = !prev;
+      if (next && cornerRadius === 0) {
+        setCornerRadius(24);
+      }
+      showToast(next ? `Corners: Rounded (${cornerRadius || 24}px)` : 'Corners: Turned OFF (Sharp 90°)');
+      return next;
+    });
+  };
+
   const handleResetAdjustments = () => {
     setBlur(28);
     setBgScale(1.25);
@@ -166,6 +179,7 @@ export default function App() {
     setShowBackground(true);
     setSolidBackgroundColor('#0b0f19');
     setPadding(0.08);
+    setEnableCornerRadius(true);
     setCornerRadius(24);
     setShadowBlur(32);
     setShadowOpacity(0.45);
@@ -227,6 +241,9 @@ export default function App() {
                 rotation={rotation}
                 flipH={flipH}
                 flipV={flipV}
+                enableCornerRadius={enableCornerRadius}
+                cornerRadius={cornerRadius}
+                onToggleCorners={handleToggleCorners}
               />
             </div>
 
@@ -309,6 +326,8 @@ export default function App() {
                     setSolidBackgroundColor={setSolidBackgroundColor}
                     padding={padding}
                     setPadding={setPadding}
+                    enableCornerRadius={enableCornerRadius}
+                    setEnableCornerRadius={setEnableCornerRadius}
                     cornerRadius={cornerRadius}
                     setCornerRadius={setCornerRadius}
                     shadowBlur={shadowBlur}

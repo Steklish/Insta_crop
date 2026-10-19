@@ -3,6 +3,12 @@
  */
 
 export function drawRoundedRectPath(ctx, x, y, width, height, radius) {
+  if (!radius || radius <= 0) {
+    ctx.beginPath();
+    ctx.rect(x, y, width, height);
+    return;
+  }
+
   const maxRadius = Math.min(width / 2, height / 2);
   const r = Math.max(0, Math.min(radius, maxRadius));
 
@@ -101,6 +107,7 @@ export function renderCanvas({
   bgSaturation = 120,
   bgBrightness = 95,
   padding = 0.08, // 0 to 0.4
+  enableCornerRadius = true,
   cornerRadius = 24,
   shadowBlur = 32,
   shadowOpacity = 0.45,
@@ -130,7 +137,7 @@ export function renderCanvas({
   // Proportional scale factor for blur, radius, and shadows
   const scaleFactor = targetWidth / (baseWidth || 1080);
   const actualBlur = Math.max(0, blur * scaleFactor);
-  const actualRadius = Math.max(0, cornerRadius * scaleFactor);
+  const actualRadius = enableCornerRadius && cornerRadius > 0 ? Math.max(0, cornerRadius * scaleFactor) : 0;
   const actualShadowBlur = Math.max(0, shadowBlur * scaleFactor);
   const actualShadowOffsetY = shadowOffsetY * scaleFactor;
   const actualBorderWidth = Math.max(0, borderWidth * scaleFactor);

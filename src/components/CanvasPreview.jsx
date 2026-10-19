@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { RotateCw, FlipHorizontal, FlipVertical, Eye, Maximize2, Move } from 'lucide-react';
+import { RotateCw, FlipHorizontal, FlipVertical, Eye, Maximize2, Move, Square } from 'lucide-react';
 
 export default function CanvasPreview({
   canvasRef,
@@ -13,6 +13,9 @@ export default function CanvasPreview({
   rotation,
   flipH,
   flipV,
+  enableCornerRadius = true,
+  cornerRadius = 24,
+  onToggleCorners,
 }) {
   const [isComparing, setIsComparing] = useState(false);
 
@@ -115,6 +118,24 @@ export default function CanvasPreview({
         >
           <FlipVertical className="w-3.5 h-3.5 text-purple-400" />
           <span>Flip V</span>
+        </button>
+
+        {/* Quick Corner Rounding Toggle */}
+        <button
+          onClick={onToggleCorners}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all active:scale-95 shadow-sm ${
+            enableCornerRadius && cornerRadius > 0
+              ? 'bg-indigo-600/30 border-indigo-500 text-indigo-300'
+              : 'bg-slate-900 hover:bg-slate-800 border-slate-800 text-slate-400 hover:text-slate-200'
+          }`}
+          title={
+            enableCornerRadius && cornerRadius > 0
+              ? `Turn off rounded corners (currently ${cornerRadius}px)`
+              : 'Turn on rounded corners'
+          }
+        >
+          <Square className="w-3.5 h-3.5 text-amber-400" />
+          <span>Corners: {enableCornerRadius && cornerRadius > 0 ? `${cornerRadius}px` : 'Sharp'}</span>
         </button>
 
         <button

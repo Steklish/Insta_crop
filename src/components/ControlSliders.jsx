@@ -34,6 +34,8 @@ export default function ControlSliders({
   // Foreground Props
   padding,
   setPadding,
+  enableCornerRadius = true,
+  setEnableCornerRadius,
   cornerRadius,
   setCornerRadius,
   shadowBlur,
@@ -297,43 +299,131 @@ export default function ControlSliders({
             </div>
           </div>
 
-          {/* Corner Rounding Slider + Quick Buttons */}
-          <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2">
-            <div className="flex justify-between text-xs font-medium text-slate-300">
-              <span>Corner Rounding</span>
-              <span className="font-mono text-indigo-400">{cornerRadius}px</span>
+          {/* Corner Rounding Control with ON/OFF Toggle */}
+          <div className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 space-y-3">
+            {/* Header with Title and Toggle Switch */}
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-200">Rounded Corners</span>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase transition-colors ${
+                      enableCornerRadius && cornerRadius > 0
+                        ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                        : 'bg-slate-800 text-slate-400 border border-slate-700/60'
+                    }`}
+                  >
+                    {enableCornerRadius && cornerRadius > 0
+                      ? `${cornerRadius}px`
+                      : 'OFF (Sharp 90°)'}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Smooth rounded borders or sharp crisp photo corners
+                </p>
+              </div>
+
+              {/* Toggle Switch */}
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={enableCornerRadius}
+                  onChange={(e) => {
+                    const next = e.target.checked;
+                    setEnableCornerRadius(next);
+                    if (next && cornerRadius === 0) {
+                      setCornerRadius(24);
+                    }
+                  }}
+                  className="sr-only peer"
+                />
+                <div className="w-10 h-5.5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-indigo-600"></div>
+              </label>
             </div>
-            <input
-              type="range"
-              min="0"
-              max="120"
-              step="2"
-              value={cornerRadius}
-              onChange={(e) => setCornerRadius(parseInt(e.target.value, 10))}
-              className="w-full accent-indigo-500 cursor-pointer"
-            />
-            <div className="flex items-center gap-1.5 pt-1">
-              {[
-                { label: 'Square', val: 0 },
-                { label: 'Subtle', val: 16 },
-                { label: 'Smooth', val: 32 },
-                { label: 'Heavy', val: 56 },
-                { label: 'Pill', val: 100 },
-              ].map((c) => (
+
+            {enableCornerRadius ? (
+              <div className="space-y-2.5 pt-1 animate-fade-in">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-medium text-slate-300">Radius Intensity</span>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      min="0"
+                      max="200"
+                      value={cornerRadius}
+                      onChange={(e) => {
+                        const val = Math.max(0, parseInt(e.target.value, 10) || 0);
+                        setCornerRadius(val);
+                      }}
+                      className="w-16 px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 text-white font-mono text-xs text-right focus:outline-none focus:border-indigo-500"
+                    />
+                    <span className="text-xs text-slate-400 font-mono">px</span>
+                  </div>
+                </div>
+
+                <input
+                  type="range"
+                  min="0"
+                  max="140"
+                  step="2"
+                  value={cornerRadius}
+                  onChange={(e) => setCornerRadius(parseInt(e.target.value, 10))}
+                  className="w-full accent-indigo-500 cursor-pointer"
+                />
+
+                {/* Quick Radius Presets + Explicit Turn Off Button */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEnableCornerRadius(false);
+                    }}
+                    className="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all bg-red-950/40 hover:bg-red-900/60 text-red-300 border border-red-800/50"
+                    title="Turn off corner rounding and use sharp 90-degree square edges"
+                  >
+                    Turn Off (Sharp)
+                  </button>
+
+                  {[
+                    { label: 'Subtle', val: 12 },
+                    { label: 'Smooth', val: 24 },
+                    { label: 'Card', val: 36 },
+                    { label: 'Heavy', val: 56 },
+                    { label: 'Pill', val: 100 },
+                  ].map((c) => (
+                    <button
+                      key={c.label}
+                      type="button"
+                      onClick={() => {
+                        setEnableCornerRadius(true);
+                        setCornerRadius(c.val);
+                      }}
+                      className={`px-2 py-1 rounded-lg text-[10px] font-medium transition-colors ${
+                        enableCornerRadius && cornerRadius === c.val
+                          ? 'bg-indigo-600 text-white shadow-sm'
+                          : 'bg-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {c.label} ({c.val}px)
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="p-3 rounded-xl bg-slate-950/60 border border-dashed border-slate-800 flex items-center justify-between text-xs text-slate-400 animate-fade-in">
+                <span>Corner rounding is turned OFF (sharp 90° edges).</span>
                 <button
-                  key={c.label}
                   type="button"
-                  onClick={() => setCornerRadius(c.val)}
-                  className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
-                    cornerRadius === c.val
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-slate-800 text-slate-400 hover:text-white'
-                  }`}
+                  onClick={() => {
+                    setEnableCornerRadius(true);
+                    if (cornerRadius === 0) setCornerRadius(24);
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 font-semibold text-xs border border-indigo-500/40 transition-colors"
                 >
-                  {c.label}
+                  Turn On
                 </button>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Position Offsets (Nudge) */}
