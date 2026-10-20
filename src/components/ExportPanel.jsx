@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Download,
   Share2,
@@ -23,6 +23,18 @@ import {
   copyBlobToClipboard,
   shareImageFile,
 } from '../utils/canvas';
+
+/**
+ * Format default export filename incorporating the original filename
+ */
+function formatDefaultExportFilename(origName, presetId) {
+  const cleanBase = (origName || 'photo')
+    .replace(/\.[^/.]+$/, '') // strip extension
+    .trim()
+    .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_') || 'photo';
+  const ratioSuffix = presetId ? `-${presetId.replace(':', '-')}` : '';
+  return `${cleanBase}-instacrop${ratioSuffix}`;
+}
 
 export default function ExportPanel({
   image,
@@ -61,9 +73,18 @@ export default function ExportPanel({
   const [customExportHeight, setCustomExportHeight] = useState(1080);
   const [lockAspect, setLockAspect] = useState(true);
 
-  const [filename, setFilename] = useState(
-    () => `instacrop-${preset.id.replace(':', '-')}-${Date.now().toString().slice(-4)}`
+  const [filename, setFilename] = useState(() =>
+    formatDefaultExportFilename(originalFilename, preset?.id)
   );
+
+  // Keep filename updated when the user loads a new photo or changes preset (if not manually customized)
+  const prevOriginalFilenameRef = useRef(originalFilename);
+  useEffect(() => {
+    if (originalFilename && originalFilename !== prevOriginalFilenameRef.current) {
+      prevOriginalFilenameRef.current = originalFilename;
+      setFilename(formatDefaultExportFilename(originalFilename, preset?.id));
+    }
+  }, [originalFilename, preset?.id]);
   const [isExporting, setIsExporting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -179,7 +200,8 @@ export default function ExportPanel({
       setIsExporting(true);
       setErrorMessage(null);
       const blob = await generateExportBlob();
-      const fullFilename = `${filename.trim() || 'instacrop'}.${selectedFormatObj.ext}`;
+      const defaultName = formatDefaultExportFilename(originalFilename, preset?.id);
+      const fullFilename = `${filename.trim() || defaultName}.${selectedFormatObj.ext}`;
       downloadBlob(blob, fullFilename);
       triggerConfetti();
     } catch (err) {
@@ -212,7 +234,8 @@ export default function ExportPanel({
       setIsExporting(true);
       setErrorMessage(null);
       const blob = await generateExportBlob();
-      const fullFilename = `${filename.trim() || 'instacrop'}.${selectedFormatObj.ext}`;
+      const defaultName = formatDefaultExportFilename(originalFilename, preset?.id);
+      const fullFilename = `${filename.trim() || defaultName}.${selectedFormatObj.ext}`;
       await shareImageFile(blob, fullFilename, `InstaCrop - ${preset.name}`);
       triggerConfetti();
     } catch (err) {
@@ -426,7 +449,7 @@ export default function ExportPanel({
               value={filename}
               onChange={(e) => setFilename(e.target.value)}
               className="bg-transparent text-[#e1e1e0] text-xs font-mono flex-1 focus:outline-none"
-              placeholder="Filename"
+              placeholder={formatDefaultExportFilename(originalFilename, preset?.id)}
             />
             <span className="text-[#a0a0a0] text-xs font-mono">.{selectedFormatObj.ext}</span>
           </div>
