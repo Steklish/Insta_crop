@@ -232,9 +232,17 @@ export default function PresetSelector({
                         {cp.settings.presetId}
                       </span>
                     )}
+                    {cp.settings?.exportFormat && (
+                      <span className="text-[9px] font-mono font-bold px-1 py-0.2 rounded bg-[#a9967f]/20 text-[#a9967f] border border-[#a9967f]/30 flex-shrink-0">
+                        {cp.settings.exportFormat.replace('image/', '').toUpperCase()}
+                      </span>
+                    )}
                   </div>
                   <div className="text-[10px] text-[#a0a0a0] truncate mt-0.5">
                     Blur: {cp.settings?.blur ?? 28} • Margin: {Math.round((cp.settings?.padding ?? 0.08) * 100)}%
+                    {cp.settings?.resolutionMode && cp.settings.resolutionMode !== '1x' && (
+                      <span> • {cp.settings.resolutionMode.toUpperCase()}</span>
+                    )}
                   </div>
                 </div>
 

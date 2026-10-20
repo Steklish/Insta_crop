@@ -31,14 +31,31 @@ export default function ExportPanel({
   customHeight,
   canvasProps,
   originalFilename,
+  exportFormat: propExportFormat,
+  setExportFormat: propSetExportFormat,
+  jpegQuality: propJpegQuality,
+  setJpegQuality: propSetJpegQuality,
+  resolutionMode: propResolutionMode,
+  setResolutionMode: propSetResolutionMode,
+  scaleSlider: propScaleSlider,
+  setScaleSlider: propSetScaleSlider,
 }) {
-  const [resolutionMode, setResolutionMode] = useState('1x');
-  const [customExportWidth, setCustomExportWidth] = useState(1080);
-  const [customExportHeight, setCustomExportHeight] = useState(1080);
-  const [lockAspect, setLockAspect] = useState(true);
-  const [scaleSlider, setScaleSlider] = useState(1.0);
-  const [exportFormat, setExportFormat] = useState('image/png');
-  const [jpegQuality, setJpegQuality] = useState(0.92);
+  const [localResolutionMode, setLocalResolutionMode] = useState('1x');
+  const [localScaleSlider, setLocalScaleSlider] = useState(1.0);
+  const [localExportFormat, setLocalExportFormat] = useState('image/png');
+  const [localJpegQuality, setLocalJpegQuality] = useState(0.92);
+
+  const resolutionMode = propResolutionMode !== undefined ? propResolutionMode : localResolutionMode;
+  const setResolutionMode = propSetResolutionMode || setLocalResolutionMode;
+
+  const scaleSlider = propScaleSlider !== undefined ? propScaleSlider : localScaleSlider;
+  const setScaleSlider = propSetScaleSlider || setLocalScaleSlider;
+
+  const exportFormat = propExportFormat !== undefined ? propExportFormat : localExportFormat;
+  const setExportFormat = propSetExportFormat || setLocalExportFormat;
+
+  const jpegQuality = propJpegQuality !== undefined ? propJpegQuality : localJpegQuality;
+  const setJpegQuality = propSetJpegQuality || setLocalJpegQuality;
   const [filename, setFilename] = useState(
     () => `instacrop-${preset.id.replace(':', '-')}-${Date.now().toString().slice(-4)}`
   );

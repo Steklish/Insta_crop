@@ -29,6 +29,10 @@ export const DEFAULT_PRESET_SETTINGS = {
   shadowOffsetY: 12,
   borderWidth: 0,
   borderColor: '#ffffff',
+  exportFormat: 'image/png',
+  jpegQuality: 0.92,
+  resolutionMode: '1x',
+  scaleMultiplier: 1.0,
 };
 
 /**

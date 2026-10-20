@@ -69,6 +69,13 @@ export default function App() {
   const [shadowOffsetY, setShadowOffsetY] = useState(() => initialSettings?.shadowOffsetY ?? 12);
   const [borderWidth, setBorderWidth] = useState(() => initialSettings?.borderWidth ?? 0);
   const [borderColor, setBorderColor] = useState(() => initialSettings?.borderColor ?? '#ffffff');
+
+  // Export Settings (saved in presets and persisted across sessions)
+  const [exportFormat, setExportFormat] = useState(() => initialSettings?.exportFormat ?? 'image/png');
+  const [jpegQuality, setJpegQuality] = useState(() => initialSettings?.jpegQuality ?? 0.92);
+  const [resolutionMode, setResolutionMode] = useState(() => initialSettings?.resolutionMode ?? '1x');
+  const [scaleMultiplier, setScaleMultiplier] = useState(() => initialSettings?.scaleMultiplier ?? 1.0);
+
   const [rotation, setRotation] = useState(0);
   const [flipH, setFlipH] = useState(false);
   const [flipV, setFlipV] = useState(false);
@@ -310,6 +317,10 @@ export default function App() {
     if (typeof settings.shadowOffsetY === 'number') setShadowOffsetY(settings.shadowOffsetY);
     if (typeof settings.borderWidth === 'number') setBorderWidth(settings.borderWidth);
     if (typeof settings.borderColor === 'string') setBorderColor(settings.borderColor);
+    if (typeof settings.exportFormat === 'string') setExportFormat(settings.exportFormat);
+    if (typeof settings.jpegQuality === 'number') setJpegQuality(settings.jpegQuality);
+    if (typeof settings.resolutionMode === 'string') setResolutionMode(settings.resolutionMode);
+    if (typeof settings.scaleMultiplier === 'number') setScaleMultiplier(settings.scaleMultiplier);
   }, []);
 
   // Snapshot of current active settings
@@ -338,6 +349,10 @@ export default function App() {
     shadowOffsetY,
     borderWidth,
     borderColor,
+    exportFormat,
+    jpegQuality,
+    resolutionMode,
+    scaleMultiplier,
   };
 
   // Debounced auto-save of current settings as last-used
@@ -371,6 +386,10 @@ export default function App() {
     shadowOffsetY,
     borderWidth,
     borderColor,
+    exportFormat,
+    jpegQuality,
+    resolutionMode,
+    scaleMultiplier,
   ]);
 
   const handleResetAll = () => {
@@ -548,6 +567,14 @@ export default function App() {
                     customHeight={customHeight}
                     canvasProps={canvasProps}
                     originalFilename={originalFilename}
+                    exportFormat={exportFormat}
+                    setExportFormat={setExportFormat}
+                    jpegQuality={jpegQuality}
+                    setJpegQuality={setJpegQuality}
+                    resolutionMode={resolutionMode}
+                    setResolutionMode={setResolutionMode}
+                    scaleSlider={scaleMultiplier}
+                    setScaleSlider={setScaleMultiplier}
                   />
                 )}
               </div>
