@@ -165,6 +165,21 @@ export function renderCanvas({
   positionY = 0,
   showBackground = true,
   solidBackgroundColor = '#0b0f19',
+  // Text Overlay Props
+  textEnabled = false,
+  textContent = '',
+  textFontFamily = 'system-ui, -apple-system, sans-serif',
+  textFontSize = 44,
+  textColor = '#ffffff',
+  textBold = true,
+  textItalic = false,
+  textUppercase = false,
+  textAlign = 'center',
+  textPositionX = 50,
+  textPositionY = 85,
+  textBgStyle = 'none',
+  textShadow = true,
+  textStroke = false,
 }) {
   if (!canvas || !image) return;
 
@@ -311,6 +326,96 @@ export function renderCanvas({
   }
 
   ctx.restore();
+
+  // ==========================================
+  // 3. TEXT OVERLAY LAYER
+  // ==========================================
+  if (textEnabled && textContent && textContent.trim().length > 0) {
+    ctx.save();
+
+    const actualFontSize = Math.max(10, (textFontSize || 44) * scaleFactor);
+    const weight = textBold ? 'bold' : 'normal';
+    const style = textItalic ? 'italic' : 'normal';
+    const family = textFontFamily || 'system-ui, -apple-system, sans-serif';
+
+    ctx.font = `${style} ${weight} ${actualFontSize}px ${family}`;
+
+    let processedText = textContent;
+    if (textUppercase) processedText = processedText.toUpperCase();
+    const lines = processedText.split('\n');
+
+    const lineHeight = actualFontSize * 1.25;
+    const lineMetrics = lines.map((line) => ctx.measureText(line));
+    const maxLineWidth = Math.max(...lineMetrics.map((m) => m.width), 10);
+    const totalTextHeight = lines.length * lineHeight;
+
+    const posX = ((textPositionX ?? 50) / 100) * targetWidth;
+    const posY = ((textPositionY ?? 85) / 100) * targetHeight;
+
+    const align = textAlign || 'center';
+    ctx.textAlign = align;
+    ctx.textBaseline = 'middle';
+
+    // Draw Background Badge / Pill if enabled
+    if (textBgStyle && textBgStyle !== 'none') {
+      const padX = 18 * scaleFactor;
+      const padY = 10 * scaleFactor;
+      const boxW = maxLineWidth + padX * 2;
+      const boxH = totalTextHeight + padY * 2;
+      const radius = textBgStyle.includes('pill')
+        ? Math.min(boxH / 2, 28 * scaleFactor)
+        : 10 * scaleFactor;
+
+      let boxX = posX - boxW / 2;
+      if (align === 'left') boxX = posX - padX;
+      else if (align === 'right') boxX = posX - boxW + padX;
+      const boxY = posY - totalTextHeight / 2 - padY;
+
+      ctx.save();
+      if (textBgStyle === 'dark-pill') {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+      } else if (textBgStyle === 'light-pill') {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+      } else if (textBgStyle === 'theme-pill') {
+        ctx.fillStyle = 'rgba(42, 42, 44, 0.85)';
+      } else if (textBgStyle === 'gold-pill') {
+        ctx.fillStyle = 'rgba(169, 150, 127, 0.9)';
+      } else {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+      }
+
+      drawRoundedRectPath(ctx, boxX, boxY, boxW, boxH, radius);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Shadow for text contrast over busy images
+    if (textShadow) {
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+      ctx.shadowBlur = Math.max(3, 8 * scaleFactor);
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = Math.max(1, 2 * scaleFactor);
+    }
+
+    // Optional Stroke / Outline
+    if (textStroke) {
+      ctx.strokeStyle = textColor === '#ffffff' ? '#000000' : '#ffffff';
+      ctx.lineWidth = Math.max(1.5, 3 * scaleFactor);
+    }
+
+    ctx.fillStyle = textColor || '#ffffff';
+
+    const startY = posY - totalTextHeight / 2 + lineHeight / 2;
+    lines.forEach((line, index) => {
+      const lineY = startY + index * lineHeight;
+      if (textStroke) {
+        ctx.strokeText(line, posX, lineY);
+      }
+      ctx.fillText(line, posX, lineY);
+    });
+
+    ctx.restore();
+  }
 }
 
 /**

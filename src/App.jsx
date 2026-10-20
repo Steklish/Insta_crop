@@ -4,6 +4,7 @@ import EmptyState from './components/EmptyState';
 import CanvasPreview from './components/CanvasPreview';
 import PresetSelector from './components/PresetSelector';
 import ControlSliders from './components/ControlSliders';
+import TextOverlayPanel from './components/TextOverlayPanel';
 import ExportPanel from './components/ExportPanel';
 import { ASPECT_RATIO_PRESETS } from './constants/presets';
 import {
@@ -20,6 +21,7 @@ import { addTrace } from './utils/tracer';
 import {
   Grid3X3,
   Sliders,
+  Type,
   Download,
   Image as ImageIcon,
   CheckCircle2,
@@ -82,7 +84,23 @@ export default function App() {
   const [positionX, setPositionX] = useState(0);
   const [positionY, setPositionY] = useState(0);
 
-  // Mobile Navigation Tab: 'preset' | 'adjust' | 'export'
+  // Text Overlay State
+  const [textEnabled, setTextEnabled] = useState(() => initialSettings?.textEnabled ?? false);
+  const [textContent, setTextContent] = useState(() => initialSettings?.textContent ?? '');
+  const [textFontFamily, setTextFontFamily] = useState(() => initialSettings?.textFontFamily ?? 'system-ui, -apple-system, sans-serif');
+  const [textFontSize, setTextFontSize] = useState(() => initialSettings?.textFontSize ?? 44);
+  const [textColor, setTextColor] = useState(() => initialSettings?.textColor ?? '#ffffff');
+  const [textBold, setTextBold] = useState(() => initialSettings?.textBold ?? true);
+  const [textItalic, setTextItalic] = useState(() => initialSettings?.textItalic ?? false);
+  const [textUppercase, setTextUppercase] = useState(() => initialSettings?.textUppercase ?? false);
+  const [textAlign, setTextAlign] = useState(() => initialSettings?.textAlign ?? 'center');
+  const [textPositionX, setTextPositionX] = useState(() => initialSettings?.textPositionX ?? 50);
+  const [textPositionY, setTextPositionY] = useState(() => initialSettings?.textPositionY ?? 85);
+  const [textBgStyle, setTextBgStyle] = useState(() => initialSettings?.textBgStyle ?? 'none');
+  const [textShadow, setTextShadow] = useState(() => initialSettings?.textShadow ?? true);
+  const [textStroke, setTextStroke] = useState(() => initialSettings?.textStroke ?? false);
+
+  // Mobile Navigation Tab: 'preset' | 'adjust' | 'text' | 'export'
   const [mobileTab, setMobileTab] = useState('preset');
 
   // Notifications
@@ -161,6 +179,20 @@ export default function App() {
     positionY,
     showBackground,
     solidBackgroundColor,
+    textEnabled,
+    textContent,
+    textFontFamily,
+    textFontSize,
+    textColor,
+    textBold,
+    textItalic,
+    textUppercase,
+    textAlign,
+    textPositionX,
+    textPositionY,
+    textBgStyle,
+    textShadow,
+    textStroke,
   };
 
   // Live Canvas Rendering
@@ -321,7 +353,39 @@ export default function App() {
     if (typeof settings.jpegQuality === 'number') setJpegQuality(settings.jpegQuality);
     if (typeof settings.resolutionMode === 'string') setResolutionMode(settings.resolutionMode);
     if (typeof settings.scaleMultiplier === 'number') setScaleMultiplier(settings.scaleMultiplier);
+    if (typeof settings.textEnabled === 'boolean') setTextEnabled(settings.textEnabled);
+    if (typeof settings.textContent === 'string') setTextContent(settings.textContent);
+    if (typeof settings.textFontFamily === 'string') setTextFontFamily(settings.textFontFamily);
+    if (typeof settings.textFontSize === 'number') setTextFontSize(settings.textFontSize);
+    if (typeof settings.textColor === 'string') setTextColor(settings.textColor);
+    if (typeof settings.textBold === 'boolean') setTextBold(settings.textBold);
+    if (typeof settings.textItalic === 'boolean') setTextItalic(settings.textItalic);
+    if (typeof settings.textUppercase === 'boolean') setTextUppercase(settings.textUppercase);
+    if (typeof settings.textAlign === 'string') setTextAlign(settings.textAlign);
+    if (typeof settings.textPositionX === 'number') setTextPositionX(settings.textPositionX);
+    if (typeof settings.textPositionY === 'number') setTextPositionY(settings.textPositionY);
+    if (typeof settings.textBgStyle === 'string') setTextBgStyle(settings.textBgStyle);
+    if (typeof settings.textShadow === 'boolean') setTextShadow(settings.textShadow);
+    if (typeof settings.textStroke === 'boolean') setTextStroke(settings.textStroke);
   }, []);
+
+  const handleResetText = () => {
+    setTextEnabled(false);
+    setTextContent('');
+    setTextFontFamily('system-ui, -apple-system, sans-serif');
+    setTextFontSize(44);
+    setTextColor('#ffffff');
+    setTextBold(true);
+    setTextItalic(false);
+    setTextUppercase(false);
+    setTextAlign('center');
+    setTextPositionX(50);
+    setTextPositionY(85);
+    setTextBgStyle('none');
+    setTextShadow(true);
+    setTextStroke(false);
+    showToast('Text overlay reset to defaults');
+  };
 
   // Snapshot of current active settings
   const currentSettings = {
@@ -353,6 +417,20 @@ export default function App() {
     jpegQuality,
     resolutionMode,
     scaleMultiplier,
+    textEnabled,
+    textContent,
+    textFontFamily,
+    textFontSize,
+    textColor,
+    textBold,
+    textItalic,
+    textUppercase,
+    textAlign,
+    textPositionX,
+    textPositionY,
+    textBgStyle,
+    textShadow,
+    textStroke,
   };
 
   // Debounced auto-save of current settings as last-used
@@ -390,6 +468,20 @@ export default function App() {
     jpegQuality,
     resolutionMode,
     scaleMultiplier,
+    textEnabled,
+    textContent,
+    textFontFamily,
+    textFontSize,
+    textColor,
+    textBold,
+    textItalic,
+    textUppercase,
+    textAlign,
+    textPositionX,
+    textPositionY,
+    textBgStyle,
+    textShadow,
+    textStroke,
   ]);
 
   const handleResetAll = () => {
@@ -466,6 +558,21 @@ export default function App() {
                 >
                   <Sliders className="w-3.5 h-3.5" />
                   <span>Adjust</span>
+                </button>
+
+                <button
+                  onClick={() => setMobileTab('text')}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                    mobileTab === 'text'
+                      ? 'bg-[#a9967f] text-[#1c1c1e] shadow-md shadow-[#a9967f]/20 font-extrabold'
+                      : 'text-[#e1e1e0]/70 hover:text-white'
+                  }`}
+                >
+                  <Type className="w-3.5 h-3.5" />
+                  <span className="flex items-center gap-1">
+                    Text
+                    {textEnabled && <span className="w-1.5 h-1.5 rounded-full bg-[#71b34f]" />}
+                  </span>
                 </button>
 
                 <button
@@ -559,6 +666,40 @@ export default function App() {
                   />
                 )}
 
+                {mobileTab === 'text' && (
+                  <TextOverlayPanel
+                    textEnabled={textEnabled}
+                    setTextEnabled={setTextEnabled}
+                    textContent={textContent}
+                    setTextContent={setTextContent}
+                    textFontFamily={textFontFamily}
+                    setTextFontFamily={setTextFontFamily}
+                    textFontSize={textFontSize}
+                    setTextFontSize={setTextFontSize}
+                    textColor={textColor}
+                    setTextColor={setTextColor}
+                    textBold={textBold}
+                    setTextBold={setTextBold}
+                    textItalic={textItalic}
+                    setTextItalic={setTextItalic}
+                    textUppercase={textUppercase}
+                    setTextUppercase={setTextUppercase}
+                    textAlign={textAlign}
+                    setTextAlign={setTextAlign}
+                    textPositionX={textPositionX}
+                    setTextPositionX={setTextPositionX}
+                    textPositionY={textPositionY}
+                    setTextPositionY={setTextPositionY}
+                    textBgStyle={textBgStyle}
+                    setTextBgStyle={setTextBgStyle}
+                    textShadow={textShadow}
+                    setTextShadow={setTextShadow}
+                    textStroke={textStroke}
+                    setTextStroke={setTextStroke}
+                    onResetText={handleResetText}
+                  />
+                )}
+
                 {mobileTab === 'export' && (
                   <ExportPanel
                     image={image}
@@ -600,7 +741,7 @@ export default function App() {
 
           <button
             onClick={() => setMobileTab('adjust')}
-            className={`flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-3 xs:px-4 rounded-xl transition-all ${
+            className={`flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-2.5 xs:px-3 rounded-xl transition-all ${
               mobileTab === 'adjust'
                 ? 'text-[#a9967f] font-extrabold scale-105'
                 : 'text-[#e1e1e0]/50 hover:text-[#e1e1e0]'
@@ -611,8 +752,25 @@ export default function App() {
           </button>
 
           <button
+            onClick={() => setMobileTab('text')}
+            className={`flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-2.5 xs:px-3 rounded-xl transition-all relative ${
+              mobileTab === 'text'
+                ? 'text-[#a9967f] font-extrabold scale-105'
+                : 'text-[#e1e1e0]/50 hover:text-[#e1e1e0]'
+            }`}
+          >
+            <div className="relative">
+              <Type className="w-4 h-4 xs:w-5 xs:h-5" />
+              {textEnabled && (
+                <span className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-[#71b34f]" />
+              )}
+            </div>
+            <span className="text-[9px] xs:text-[10px] font-medium tracking-wide">Text</span>
+          </button>
+
+          <button
             onClick={() => setMobileTab('export')}
-            className={`flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-3 xs:px-4 rounded-xl transition-all ${
+            className={`flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-2.5 xs:px-3 rounded-xl transition-all ${
               mobileTab === 'export'
                 ? 'text-[#a9967f] font-extrabold scale-105'
                 : 'text-[#e1e1e0]/50 hover:text-[#e1e1e0]'

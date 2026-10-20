@@ -33,6 +33,20 @@ export const DEFAULT_PRESET_SETTINGS = {
   jpegQuality: 0.92,
   resolutionMode: '1x',
   scaleMultiplier: 1.0,
+  textEnabled: false,
+  textContent: '',
+  textFontFamily: 'system-ui, -apple-system, sans-serif',
+  textFontSize: 44,
+  textColor: '#ffffff',
+  textBold: true,
+  textItalic: false,
+  textUppercase: false,
+  textAlign: 'center',
+  textPositionX: 50,
+  textPositionY: 85,
+  textBgStyle: 'none',
+  textShadow: true,
+  textStroke: false,
 };
 
 /**
