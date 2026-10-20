@@ -56,6 +56,11 @@ export default function ExportPanel({
 
   const jpegQuality = propJpegQuality !== undefined ? propJpegQuality : localJpegQuality;
   const setJpegQuality = propSetJpegQuality || setLocalJpegQuality;
+
+  const [customExportWidth, setCustomExportWidth] = useState(1080);
+  const [customExportHeight, setCustomExportHeight] = useState(1080);
+  const [lockAspect, setLockAspect] = useState(true);
+
   const [filename, setFilename] = useState(
     () => `instacrop-${preset.id.replace(':', '-')}-${Date.now().toString().slice(-4)}`
   );

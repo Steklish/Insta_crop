@@ -726,10 +726,10 @@ export default function App() {
 
       {/* Mobile Bottom Navigation Bar (Visible only on mobile screens when image is loaded) */}
       {image && (
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#1c1c1e]/95 backdrop-blur-xl border-t border-[#3a3a3c] px-2 xs:px-4 py-1 xs:py-1.5 safe-area-bottom flex items-center justify-around shadow-2xl">
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#1c1c1e]/95 backdrop-blur-xl border-t border-[#3a3a3c] px-1 xs:px-3 py-1 xs:py-1.5 safe-area-bottom flex items-center justify-around shadow-2xl">
           <button
             onClick={() => setMobileTab('preset')}
-            className={`flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-3 xs:px-4 rounded-xl transition-all ${
+            className={`flex-1 flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-1 xs:px-2 rounded-xl transition-all ${
               mobileTab === 'preset'
                 ? 'text-[#a9967f] font-extrabold scale-105'
                 : 'text-[#e1e1e0]/50 hover:text-[#e1e1e0]'
@@ -741,7 +741,7 @@ export default function App() {
 
           <button
             onClick={() => setMobileTab('adjust')}
-            className={`flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-2.5 xs:px-3 rounded-xl transition-all ${
+            className={`flex-1 flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-1 xs:px-2 rounded-xl transition-all ${
               mobileTab === 'adjust'
                 ? 'text-[#a9967f] font-extrabold scale-105'
                 : 'text-[#e1e1e0]/50 hover:text-[#e1e1e0]'
@@ -753,7 +753,7 @@ export default function App() {
 
           <button
             onClick={() => setMobileTab('text')}
-            className={`flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-2.5 xs:px-3 rounded-xl transition-all relative ${
+            className={`flex-1 flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-1 xs:px-2 rounded-xl transition-all relative ${
               mobileTab === 'text'
                 ? 'text-[#a9967f] font-extrabold scale-105'
                 : 'text-[#e1e1e0]/50 hover:text-[#e1e1e0]'
@@ -770,7 +770,7 @@ export default function App() {
 
           <button
             onClick={() => setMobileTab('export')}
-            className={`flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-2.5 xs:px-3 rounded-xl transition-all ${
+            className={`flex-1 flex flex-col items-center gap-0.5 xs:gap-1 py-1 px-1 xs:px-2 rounded-xl transition-all ${
               mobileTab === 'export'
                 ? 'text-[#a9967f] font-extrabold scale-105'
                 : 'text-[#e1e1e0]/50 hover:text-[#e1e1e0]'
