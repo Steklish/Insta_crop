@@ -57,7 +57,8 @@ export function loadLastUsedSettings() {
     const raw = localStorage.getItem(LAST_USED_STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    return { ...DEFAULT_PRESET_SETTINGS, ...parsed };
+    // Text overlay should always remain inactive by default on startup
+    return { ...DEFAULT_PRESET_SETTINGS, ...parsed, textEnabled: false };
   } catch (e) {
     console.warn('Failed to load last used settings:', e);
     return null;

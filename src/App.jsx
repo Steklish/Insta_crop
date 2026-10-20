@@ -84,8 +84,8 @@ export default function App() {
   const [positionX, setPositionX] = useState(0);
   const [positionY, setPositionY] = useState(0);
 
-  // Text Overlay State
-  const [textEnabled, setTextEnabled] = useState(() => initialSettings?.textEnabled ?? false);
+  // Text Overlay State (always inactive by default)
+  const [textEnabled, setTextEnabled] = useState(false);
   const [textContent, setTextContent] = useState(() => initialSettings?.textContent ?? '');
   const [textFontFamily, setTextFontFamily] = useState(() => initialSettings?.textFontFamily ?? 'system-ui, -apple-system, sans-serif');
   const [textFontSize, setTextFontSize] = useState(() => initialSettings?.textFontSize ?? 44);
@@ -126,6 +126,7 @@ export default function App() {
       setFlipV(false);
       setPositionX(0);
       setPositionY(0);
+      setTextEnabled(false);
       addTrace('APP', `Image successfully mounted to canvas (${loadedImg.naturalWidth}x${loadedImg.naturalHeight})`);
       showToast('Photo loaded into canvas studio');
     } catch (err) {
@@ -316,6 +317,7 @@ export default function App() {
     setFlipV(false);
     setPositionX(0);
     setPositionY(0);
+    setTextEnabled(false);
     showToast('Adjustments reset to defaults');
   };
 
@@ -486,6 +488,7 @@ export default function App() {
 
   const handleResetAll = () => {
     setImage(null);
+    setTextEnabled(false);
   };
 
   return (
