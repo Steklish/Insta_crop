@@ -16,6 +16,7 @@ export default function CanvasPreview({
   enableCornerRadius = true,
   cornerRadius = 24,
   onToggleCorners,
+  onOpenFullscreen,
 }) {
   return (
     <div className="relative w-full flex flex-col items-center justify-center p-2 sm:p-4 bg-[#2a2a2c] rounded-2xl sm:rounded-3xl border border-[#3a3a3c] shadow-2xl overflow-hidden min-h-0">
@@ -29,18 +30,41 @@ export default function CanvasPreview({
             {targetDimensions.width} × {targetDimensions.height} px
           </span>
         </div>
+
+        {/* Fullscreen Button */}
+        {onOpenFullscreen && (
+          <button
+            type="button"
+            onClick={onOpenFullscreen}
+            className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg bg-[#252526] hover:bg-[#3a3a3c] text-[#a9967f] hover:text-white border border-[#3a3a3c] text-[10px] sm:text-xs font-semibold transition-all active:scale-95 shadow-sm"
+            title="Open fullscreen with zoom and pan navigation"
+          >
+            <Maximize2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            <span className="hidden xs:inline">Fullscreen</span>
+          </button>
+        )}
       </div>
 
       {/* Canvas Viewport Frame (Optimized max-height for smaller mobile screens) */}
-      <div className="relative flex items-center justify-center max-w-full max-h-[36vh] xs:max-h-[42vh] sm:max-h-[55vh] rounded-xl sm:rounded-2xl overflow-hidden canvas-checkerboard border border-[#3a3a3c] shadow-inner">
+      <div
+        onClick={onOpenFullscreen}
+        className="group relative flex items-center justify-center max-w-full max-h-[28vh] xs:max-h-[34vh] sm:max-h-[48vh] lg:max-h-[58vh] rounded-xl sm:rounded-2xl overflow-hidden canvas-checkerboard border border-[#3a3a3c] shadow-inner cursor-zoom-in"
+        title="Click to view fullscreen (zoom and navigate)"
+      >
         {/* The Live Render Canvas */}
         <canvas
           ref={canvasRef}
-          className="max-w-full max-h-[36vh] xs:max-h-[42vh] sm:max-h-[55vh] object-contain"
+          className="max-w-full max-h-[28vh] xs:max-h-[34vh] sm:max-h-[48vh] lg:max-h-[58vh] object-contain transition-transform duration-200 group-hover:scale-[1.01]"
           style={{
             aspectRatio: `${targetDimensions.width} / ${targetDimensions.height}`,
           }}
         />
+
+        {/* Subtle hover overlay badge */}
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#1c1c1e]/80 backdrop-blur-md px-2 py-1 rounded-lg text-[10px] text-[#e1e1e0] font-medium border border-[#3a3a3c] flex items-center gap-1 pointer-events-none shadow-lg">
+          <Maximize2 className="w-3 h-3 text-[#a9967f]" />
+          <span>Zoom view</span>
+        </div>
       </div>
 
       {/* Floating Canvas Quick Controls Toolbar (Single scrollable row on mobile) */}

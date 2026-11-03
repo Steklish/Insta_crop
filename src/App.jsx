@@ -6,6 +6,7 @@ import PresetSelector from './components/PresetSelector';
 import ControlSliders from './components/ControlSliders';
 import TextOverlayPanel from './components/TextOverlayPanel';
 import ExportPanel from './components/ExportPanel';
+import FullscreenViewerModal from './components/FullscreenViewerModal';
 import { ASPECT_RATIO_PRESETS } from './constants/presets';
 import {
   calculateCanvasDimensions,
@@ -112,6 +113,9 @@ export default function App() {
 
   // Mobile Navigation Tab: 'preset' | 'adjust' | 'text' | 'export'
   const [mobileTab, setMobileTab] = useState('preset');
+
+  // Fullscreen Viewer Modal State
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
   // Notifications
   const [toast, setToast] = useState(null);
@@ -575,8 +579,8 @@ export default function App() {
           />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 xs:gap-4 sm:gap-5 items-start">
-            {/* LEFT COLUMN: Canvas Preview */}
-            <div className="lg:col-span-7 xl:col-span-8 lg:sticky lg:top-18">
+            {/* LEFT COLUMN / MOBILE PINNED: Canvas Preview */}
+            <div className="sticky top-11 sm:top-12 lg:top-18 z-20 bg-[#1c1c1e] pb-1 xs:pb-2 lg:pb-0 lg:col-span-7 xl:col-span-8">
               <CanvasPreview
                 canvasRef={canvasRef}
                 originalImage={image}
@@ -592,6 +596,7 @@ export default function App() {
                 enableCornerRadius={enableCornerRadius}
                 cornerRadius={cornerRadius}
                 onToggleCorners={handleToggleCorners}
+                onOpenFullscreen={() => setIsFullscreenOpen(true)}
               />
             </div>
 
@@ -864,6 +869,15 @@ export default function App() {
           </button>
         </nav>
       )}
+
+      {/* Interactive Fullscreen Zoom & Pan Modal */}
+      <FullscreenViewerModal
+        isOpen={isFullscreenOpen}
+        onClose={() => setIsFullscreenOpen(false)}
+        canvasRef={canvasRef}
+        targetDimensions={previewDimensions}
+        preset={selectedPreset}
+      />
     </div>
   );
 }

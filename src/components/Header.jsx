@@ -6,7 +6,7 @@ export default function Header({
   hasImage,
 }) {
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-[#3a3a3c] bg-[#1c1c1e]/90 backdrop-blur-md px-2.5 sm:px-4 py-2 sm:py-2.5 transition-all">
+    <header className="sticky top-0 z-30 w-full h-11 sm:h-12 border-b border-[#3a3a3c] bg-[#1c1c1e]/95 backdrop-blur-md px-2.5 sm:px-4 flex items-center transition-all">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-1.5 sm:gap-2">
         {/* Title & Version Info */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
