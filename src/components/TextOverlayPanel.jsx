@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Type,
   AlignLeft,
@@ -17,7 +17,30 @@ import {
   Shield,
   Layers,
   RotateCcw,
+  Clock,
+  X,
 } from 'lucide-react';
+
+const RECENT_TEXTS_STORAGE_KEY = 'instacrop_recent_text_labels_v1';
+
+function loadRecentTextLabels() {
+  try {
+    const raw = localStorage.getItem(RECENT_TEXTS_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveRecentTextLabels(list) {
+  try {
+    localStorage.setItem(RECENT_TEXTS_STORAGE_KEY, JSON.stringify(list));
+  } catch (e) {
+    // ignore
+  }
+}
 
 const FONT_FAMILIES = [
   { id: "'Praise', cursive, sans-serif", name: 'Praise (Calligraphy Script)' },
@@ -78,6 +101,39 @@ export default function TextOverlayPanel({
   setTextStroke,
   onResetText,
 }) {
+  const [recentTexts, setRecentTexts] = useState(loadRecentTextLabels);
+
+  // Auto-record typed text labels into the "Last used" history
+  useEffect(() => {
+    const trimmed = (textContent || '').trim();
+    if (!trimmed || trimmed.length < 2) return;
+
+    const timer = setTimeout(() => {
+      setRecentTexts((prev) => {
+        const filtered = prev.filter((item) => item.toLowerCase() !== trimmed.toLowerCase());
+        const updated = [trimmed, ...filtered].slice(0, 8); // keep last 8
+        saveRecentTextLabels(updated);
+        return updated;
+      });
+    }, 700);
+
+    return () => clearTimeout(timer);
+  }, [textContent]);
+
+  const handleRemoveRecent = (e, targetText) => {
+    e.stopPropagation();
+    setRecentTexts((prev) => {
+      const updated = prev.filter((item) => item !== targetText);
+      saveRecentTextLabels(updated);
+      return updated;
+    });
+  };
+
+  const handleClearAllRecents = () => {
+    setRecentTexts([]);
+    saveRecentTextLabels([]);
+  };
+
   return (
     <div className="space-y-4 xs:space-y-5 animate-fade-in text-xs xs:text-sm">
       {/* Header & Master Toggle */}
@@ -155,6 +211,55 @@ export default function TextOverlayPanel({
               rows={2}
               className="w-full bg-[#1c1c1e] border border-[#3a3a3c] rounded-xl px-3 py-2 text-xs xs:text-sm text-[#e1e1e0] placeholder-[#e1e1e0]/30 focus:outline-none focus:border-[#a9967f] transition-all resize-none"
             />
+
+            {/* Last Used Labels Bar */}
+            {recentTexts.length > 0 && (
+              <div className="p-2.5 rounded-xl bg-[#252526] border border-[#3a3a3c] space-y-1.5 animate-fade-in">
+                <div className="flex items-center justify-between text-[10px] text-[#e1e1e0]/70">
+                  <span className="flex items-center gap-1 font-semibold text-[#a9967f]">
+                    <Clock className="w-3 h-3" />
+                    <span>Last Used Labels</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleClearAllRecents}
+                    className="text-[#e1e1e0]/40 hover:text-[#e1e1e0] transition-colors"
+                  >
+                    Clear history
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {recentTexts.map((text) => (
+                    <div
+                      key={text}
+                      className="group flex items-center bg-[#1c1c1e] hover:bg-[#3a3a3c] border border-[#3a3a3c] hover:border-[#a9967f]/50 rounded-lg overflow-hidden transition-all shadow-sm max-w-full"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setTextContent(text)}
+                        className={`text-[11px] px-2 py-1 text-left truncate max-w-[200px] xs:max-w-[260px] ${
+                          textContent === text
+                            ? 'text-[#a9967f] font-bold'
+                            : 'text-[#e1e1e0]/80 group-hover:text-white'
+                        }`}
+                        title={`Use "${text}"`}
+                      >
+                        {text}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => handleRemoveRecent(e, text)}
+                        className="px-1 py-1 text-[#e1e1e0]/40 hover:text-[#F44336] hover:bg-[#F44336]/10 transition-colors"
+                        title="Remove from history"
+                      >
+                        <X className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Quick Text Suggestions */}
             <div className="flex flex-wrap gap-1.5 pt-1">
