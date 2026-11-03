@@ -148,8 +148,8 @@ export default function ControlSliders({
           }`}
         >
           <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-          <span className="hidden xs:inline">Shadow & Border</span>
-          <span className="xs:hidden">Effects</span>
+          <span className="hidden xs:inline">FX (Shadow, Glow)</span>
+          <span className="xs:hidden">FX</span>
         </button>
       </div>
 
