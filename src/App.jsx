@@ -59,6 +59,9 @@ export default function App() {
   const [frostedGlass, setFrostedGlass] = useState(() => initialSettings?.frostedGlass ?? false);
   const [glassRoughness, setGlassRoughness] = useState(() => initialSettings?.glassRoughness ?? 0.18);
   const [glassSpecular, setGlassSpecular] = useState(() => initialSettings?.glassSpecular ?? 0.25);
+  const [grainSize, setGrainSize] = useState(() => initialSettings?.grainSize ?? 1.0);
+  const [grainDensity, setGrainDensity] = useState(() => initialSettings?.grainDensity ?? 1.0);
+  const [grainColorMode, setGrainColorMode] = useState(() => initialSettings?.grainColorMode ?? 'monochrome');
 
   // Foreground Controls
   const [padding, setPadding] = useState(() => initialSettings?.padding ?? 0.08);
@@ -194,6 +197,9 @@ export default function App() {
     frostedGlass,
     glassRoughness,
     glassSpecular,
+    grainSize,
+    grainDensity,
+    grainColorMode,
     textEnabled,
     textContent,
     textFontFamily,
@@ -316,6 +322,9 @@ export default function App() {
     setFrostedGlass(false);
     setGlassRoughness(0.18);
     setGlassSpecular(0.25);
+    setGrainSize(1.0);
+    setGrainDensity(1.0);
+    setGrainColorMode('monochrome');
     setPadding(0.08);
     setPaddingX(0.08);
     setPaddingY(0.08);
@@ -379,6 +388,9 @@ export default function App() {
     if (typeof settings.frostedGlass === 'boolean') setFrostedGlass(settings.frostedGlass);
     if (typeof settings.glassRoughness === 'number') setGlassRoughness(settings.glassRoughness);
     if (typeof settings.glassSpecular === 'number') setGlassSpecular(settings.glassSpecular);
+    if (typeof settings.grainSize === 'number') setGrainSize(settings.grainSize);
+    if (typeof settings.grainDensity === 'number') setGrainDensity(settings.grainDensity);
+    if (typeof settings.grainColorMode === 'string') setGrainColorMode(settings.grainColorMode);
     if (typeof settings.exportFormat === 'string') setExportFormat(settings.exportFormat);
     if (typeof settings.jpegQuality === 'number') setJpegQuality(settings.jpegQuality);
     if (typeof settings.resolutionMode === 'string') setResolutionMode(settings.resolutionMode);
@@ -450,6 +462,9 @@ export default function App() {
     frostedGlass,
     glassRoughness,
     glassSpecular,
+    grainSize,
+    grainDensity,
+    grainColorMode,
     exportFormat,
     jpegQuality,
     resolutionMode,
@@ -508,6 +523,9 @@ export default function App() {
     frostedGlass,
     glassRoughness,
     glassSpecular,
+    grainSize,
+    grainDensity,
+    grainColorMode,
     exportFormat,
     jpegQuality,
     resolutionMode,
@@ -678,6 +696,12 @@ export default function App() {
                     setGlassRoughness={setGlassRoughness}
                     glassSpecular={glassSpecular}
                     setGlassSpecular={setGlassSpecular}
+                    grainSize={grainSize}
+                    setGrainSize={setGrainSize}
+                    grainDensity={grainDensity}
+                    setGrainDensity={setGrainDensity}
+                    grainColorMode={grainColorMode}
+                    setGrainColorMode={setGrainColorMode}
                     padding={padding}
                     setPadding={handleSetPadding}
                     paddingX={paddingX}

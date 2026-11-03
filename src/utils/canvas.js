@@ -31,37 +31,81 @@ export function drawRoundedRectPath(ctx, x, y, width, height, radius) {
   ctx.closePath();
 }
 
-// Shared reusable noise pattern canvas for high-performance frosted glass texture
-let cachedNoisePattern = null;
-let cachedNoiseCanvas = null;
+// Cache noise patterns by configuration key: `${grainSize}_${grainDensity}_${grainColorMode}`
+const noisePatternCache = new Map();
 
-function getNoisePattern(ctx) {
-  if (cachedNoisePattern) return cachedNoisePattern;
+function getNoisePattern(ctx, grainSize = 1.0, grainDensity = 1.0, grainColorMode = 'monochrome') {
+  const normSize = Math.max(0.5, Math.min(4.0, grainSize || 1.0));
+  const normDensity = Math.max(0.2, Math.min(2.0, grainDensity || 1.0));
+  const mode = grainColorMode || 'monochrome';
+  const cacheKey = `${normSize.toFixed(1)}_${normDensity.toFixed(1)}_${mode}`;
+
+  if (noisePatternCache.has(cacheKey)) {
+    return noisePatternCache.get(cacheKey);
+  }
+
   try {
-    const size = 128;
+    const baseTile = 128;
     const nCanvas = document.createElement('canvas');
-    nCanvas.width = size;
-    nCanvas.height = size;
+    nCanvas.width = baseTile;
+    nCanvas.height = baseTile;
     const nCtx = nCanvas.getContext('2d');
     if (!nCtx) return null;
 
-    const imgData = nCtx.createImageData(size, size);
+    // Generate procedural grain onto offscreen canvas
+    const imgData = nCtx.createImageData(baseTile, baseTile);
     const data = imgData.data;
     const len = data.length;
+    const threshold = 1.0 - normDensity * 0.45;
 
     for (let i = 0; i < len; i += 4) {
-      // Gaussian-like noise centered around middle gray
-      const v = Math.floor(Math.random() * 255);
-      data[i] = v;
-      data[i + 1] = v;
-      data[i + 2] = v;
-      data[i + 3] = Math.floor(Math.random() * 90) + 20; // grain opacity
+      if (Math.random() < threshold) {
+        data[i + 3] = 0;
+        continue;
+      }
+
+      if (mode === 'color') {
+        data[i] = Math.floor(Math.random() * 255);
+        data[i + 1] = Math.floor(Math.random() * 255);
+        data[i + 2] = Math.floor(Math.random() * 255);
+        data[i + 3] = Math.floor(Math.random() * 110) + 30;
+      } else if (mode === 'silver') {
+        // High-contrast reflective silver speckles
+        const v = Math.random() > 0.5 ? 255 : 40;
+        data[i] = v;
+        data[i + 1] = v;
+        data[i + 2] = v;
+        data[i + 3] = Math.floor(Math.random() * 120) + 40;
+      } else {
+        // Monochrome smooth matte frosted grain
+        const v = Math.floor(Math.random() * 255);
+        data[i] = v;
+        data[i + 1] = v;
+        data[i + 2] = v;
+        data[i + 3] = Math.floor(Math.random() * 90) + 25;
+      }
     }
 
     nCtx.putImageData(imgData, 0, 0);
-    cachedNoiseCanvas = nCanvas;
-    cachedNoisePattern = ctx.createPattern(nCanvas, 'repeat');
-    return cachedNoisePattern;
+
+    let patternCanvas = nCanvas;
+    if (Math.abs(normSize - 1.0) > 0.05) {
+      // Scale noise tile to adjust grain particle size
+      const scaledTile = Math.round(baseTile * normSize);
+      const sCanvas = document.createElement('canvas');
+      sCanvas.width = scaledTile;
+      sCanvas.height = scaledTile;
+      const sCtx = sCanvas.getContext('2d');
+      sCtx.imageSmoothingEnabled = normSize > 1.4 ? false : true; // Crisp pixel grain when larger
+      sCtx.drawImage(nCanvas, 0, 0, scaledTile, scaledTile);
+      patternCanvas = sCanvas;
+    }
+
+    const pattern = ctx.createPattern(patternCanvas, 'repeat');
+    if (pattern) {
+      noisePatternCache.set(cacheKey, pattern);
+    }
+    return pattern;
   } catch (e) {
     return null;
   }
@@ -201,6 +245,9 @@ export function renderCanvas({
   frostedGlass = false,
   glassRoughness = 0.18,
   glassSpecular = 0.25,
+  grainSize = 1.0,
+  grainDensity = 1.0,
+  grainColorMode = 'monochrome',
   rotation = 0,
   flipH = false,
   flipV = false,
@@ -288,11 +335,11 @@ export function renderCanvas({
     // Frosted Glass VFX (Micro-surface roughness grain + frosted specular diffusion)
     if (frostedGlass) {
       ctx.save();
-      const pattern = getNoisePattern(ctx);
+      const pattern = getNoisePattern(ctx, grainSize, grainDensity, grainColorMode);
       if (pattern) {
         // Micro-surface frosted grain
         ctx.fillStyle = pattern;
-        ctx.globalAlpha = Math.min(0.6, Math.max(0.04, glassRoughness || 0.18));
+        ctx.globalAlpha = Math.min(0.8, Math.max(0.02, glassRoughness || 0.18));
         ctx.fillRect(0, 0, targetWidth, targetHeight);
       }
 

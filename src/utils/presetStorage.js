@@ -36,6 +36,9 @@ export const DEFAULT_PRESET_SETTINGS = {
   frostedGlass: false,
   glassRoughness: 0.18,
   glassSpecular: 0.25,
+  grainSize: 1.0,
+  grainDensity: 1.0,
+  grainColorMode: 'monochrome', // 'monochrome' | 'silver' | 'color'
   exportFormat: 'image/png',
   jpegQuality: 0.92,
   resolutionMode: '1x',

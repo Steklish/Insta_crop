@@ -45,6 +45,12 @@ export default function ControlSliders({
   setGlassRoughness,
   glassSpecular = 0.25,
   setGlassSpecular,
+  grainSize = 1.0,
+  setGrainSize,
+  grainDensity = 1.0,
+  setGrainDensity,
+  grainColorMode = 'monochrome',
+  setGrainColorMode,
 
   // Foreground Props
   padding,
@@ -315,29 +321,97 @@ export default function ControlSliders({
 
                 {frostedGlass && (
                   <div className="space-y-3 pt-1 border-t border-[#3a3a3c]/60 animate-fade-in">
-                    {/* Glass Surface Roughness (Grain) */}
+                    {/* Glass Surface Roughness (Grain Opacity) */}
                     <div className="space-y-1">
                       <div className="flex justify-between text-[11px] font-semibold text-[#e1e1e0]">
-                        <span>Glass Roughness (Grain)</span>
+                        <span>Grain Opacity (Roughness)</span>
                         <span className="font-mono text-[#a9967f]">{Math.round(glassRoughness * 100)}%</span>
                       </div>
                       <input
                         type="range"
                         min="0.04"
-                        max="0.5"
+                        max="0.65"
                         step="0.02"
                         value={glassRoughness}
                         onChange={(e) => setGlassRoughness?.(parseFloat(e.target.value))}
                         className="w-full accent-[#a9967f] cursor-pointer"
                       />
                       <div className="flex justify-between text-[9px] text-[#e1e1e0]/40 font-mono">
-                        <span>Smooth Glass</span>
-                        <span>Frosted Etch</span>
+                        <span>Delicate Satin</span>
+                        <span>Dense Frosted Etch</span>
+                      </div>
+                    </div>
+
+                    {/* Grain Particle Size */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px] font-semibold text-[#e1e1e0]">
+                        <span>Grain Particle Size</span>
+                        <span className="font-mono text-[#a9967f]">{grainSize.toFixed(1)}x</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.5"
+                        max="3.5"
+                        step="0.1"
+                        value={grainSize}
+                        onChange={(e) => setGrainSize?.(parseFloat(e.target.value))}
+                        className="w-full accent-[#a9967f] cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[9px] text-[#e1e1e0]/40 font-mono">
+                        <span>Micro-Sand (0.5x)</span>
+                        <span>Medium (1.0x)</span>
+                        <span>Chunky Salt (3.5x)</span>
+                      </div>
+                    </div>
+
+                    {/* Grain Density / Coverage */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px] font-semibold text-[#e1e1e0]">
+                        <span>Grain Density (Coverage)</span>
+                        <span className="font-mono text-[#a9967f]">{Math.round(grainDensity * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.3"
+                        max="2.0"
+                        step="0.1"
+                        value={grainDensity}
+                        onChange={(e) => setGrainDensity?.(parseFloat(e.target.value))}
+                        className="w-full accent-[#a9967f] cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[9px] text-[#e1e1e0]/40 font-mono">
+                        <span>Sparse Speckles</span>
+                        <span>Uniform Matte Fog</span>
+                      </div>
+                    </div>
+
+                    {/* Grain Color Mode */}
+                    <div className="space-y-1.5 pt-0.5">
+                      <span className="text-[11px] font-semibold text-[#e1e1e0] block">Grain Texture Mode</span>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {[
+                          { id: 'monochrome', label: 'Neutral Matte', desc: 'True frosted glass' },
+                          { id: 'silver', label: 'Silver Crystal', desc: 'Reflective glitter' },
+                          { id: 'color', label: 'Prismatic', desc: 'Chromatic dispersion' },
+                        ].map((mode) => (
+                          <button
+                            key={mode.id}
+                            type="button"
+                            onClick={() => setGrainColorMode?.(mode.id)}
+                            className={`py-1.5 px-2 rounded-xl text-center border transition-all ${
+                              grainColorMode === mode.id
+                                ? 'bg-[#a9967f] text-[#1c1c1e] font-bold border-[#a9967f] shadow-sm'
+                                : 'bg-[#1c1c1e] border-[#3a3a3c] text-[#e1e1e0]/70 hover:text-white'
+                            }`}
+                          >
+                            <div className="text-[10px] font-bold truncate">{mode.label}</div>
+                          </button>
+                        ))}
                       </div>
                     </div>
 
                     {/* Specular Sheen */}
-                    <div className="space-y-1">
+                    <div className="space-y-1 pt-1 border-t border-[#3a3a3c]/40">
                       <div className="flex justify-between text-[11px] font-semibold text-[#e1e1e0]">
                         <span>Specular Sheen (Gloss)</span>
                         <span className="font-mono text-[#a9967f]">{Math.round(glassSpecular * 100)}%</span>
