@@ -56,6 +56,9 @@ export default function App() {
   const [bgBrightness, setBgBrightness] = useState(() => initialSettings?.bgBrightness ?? 95);
   const [showBackground, setShowBackground] = useState(() => initialSettings?.showBackground ?? true);
   const [solidBackgroundColor, setSolidBackgroundColor] = useState(() => initialSettings?.solidBackgroundColor ?? '#0b0f19');
+  const [frostedGlass, setFrostedGlass] = useState(() => initialSettings?.frostedGlass ?? false);
+  const [glassRoughness, setGlassRoughness] = useState(() => initialSettings?.glassRoughness ?? 0.18);
+  const [glassSpecular, setGlassSpecular] = useState(() => initialSettings?.glassSpecular ?? 0.25);
 
   // Foreground Controls
   const [padding, setPadding] = useState(() => initialSettings?.padding ?? 0.08);
@@ -180,6 +183,9 @@ export default function App() {
     positionY,
     showBackground,
     solidBackgroundColor,
+    frostedGlass,
+    glassRoughness,
+    glassSpecular,
     textEnabled,
     textContent,
     textFontFamily,
@@ -299,6 +305,9 @@ export default function App() {
     setBgBrightness(95);
     setShowBackground(true);
     setSolidBackgroundColor('#0b0f19');
+    setFrostedGlass(false);
+    setGlassRoughness(0.18);
+    setGlassSpecular(0.25);
     setPadding(0.08);
     setPaddingX(0.08);
     setPaddingY(0.08);
@@ -351,6 +360,9 @@ export default function App() {
     if (typeof settings.shadowOffsetY === 'number') setShadowOffsetY(settings.shadowOffsetY);
     if (typeof settings.borderWidth === 'number') setBorderWidth(settings.borderWidth);
     if (typeof settings.borderColor === 'string') setBorderColor(settings.borderColor);
+    if (typeof settings.frostedGlass === 'boolean') setFrostedGlass(settings.frostedGlass);
+    if (typeof settings.glassRoughness === 'number') setGlassRoughness(settings.glassRoughness);
+    if (typeof settings.glassSpecular === 'number') setGlassSpecular(settings.glassSpecular);
     if (typeof settings.exportFormat === 'string') setExportFormat(settings.exportFormat);
     if (typeof settings.jpegQuality === 'number') setJpegQuality(settings.jpegQuality);
     if (typeof settings.resolutionMode === 'string') setResolutionMode(settings.resolutionMode);
@@ -415,6 +427,9 @@ export default function App() {
     shadowOffsetY,
     borderWidth,
     borderColor,
+    frostedGlass,
+    glassRoughness,
+    glassSpecular,
     exportFormat,
     jpegQuality,
     resolutionMode,
@@ -466,6 +481,9 @@ export default function App() {
     shadowOffsetY,
     borderWidth,
     borderColor,
+    frostedGlass,
+    glassRoughness,
+    glassSpecular,
     exportFormat,
     jpegQuality,
     resolutionMode,
@@ -630,6 +648,12 @@ export default function App() {
                     setShowBackground={setShowBackground}
                     solidBackgroundColor={solidBackgroundColor}
                     setSolidBackgroundColor={setSolidBackgroundColor}
+                    frostedGlass={frostedGlass}
+                    setFrostedGlass={setFrostedGlass}
+                    glassRoughness={glassRoughness}
+                    setGlassRoughness={setGlassRoughness}
+                    glassSpecular={glassSpecular}
+                    setGlassSpecular={setGlassSpecular}
                     padding={padding}
                     setPadding={handleSetPadding}
                     paddingX={paddingX}

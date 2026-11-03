@@ -31,6 +31,42 @@ export function drawRoundedRectPath(ctx, x, y, width, height, radius) {
   ctx.closePath();
 }
 
+// Shared reusable noise pattern canvas for high-performance frosted glass texture
+let cachedNoisePattern = null;
+let cachedNoiseCanvas = null;
+
+function getNoisePattern(ctx) {
+  if (cachedNoisePattern) return cachedNoisePattern;
+  try {
+    const size = 128;
+    const nCanvas = document.createElement('canvas');
+    nCanvas.width = size;
+    nCanvas.height = size;
+    const nCtx = nCanvas.getContext('2d');
+    if (!nCtx) return null;
+
+    const imgData = nCtx.createImageData(size, size);
+    const data = imgData.data;
+    const len = data.length;
+
+    for (let i = 0; i < len; i += 4) {
+      // Gaussian-like noise centered around middle gray
+      const v = Math.floor(Math.random() * 255);
+      data[i] = v;
+      data[i + 1] = v;
+      data[i + 2] = v;
+      data[i + 3] = Math.floor(Math.random() * 90) + 20; // grain opacity
+    }
+
+    nCtx.putImageData(imgData, 0, 0);
+    cachedNoiseCanvas = nCanvas;
+    cachedNoisePattern = ctx.createPattern(nCanvas, 'repeat');
+    return cachedNoisePattern;
+  } catch (e) {
+    return null;
+  }
+}
+
 /**
  * Calculates target canvas dimensions based on preset, custom inputs, and scale mode
  */
@@ -158,6 +194,9 @@ export function renderCanvas({
   shadowOffsetY = 12,
   borderWidth = 0,
   borderColor = '#ffffff',
+  frostedGlass = false,
+  glassRoughness = 0.18,
+  glassSpecular = 0.25,
   rotation = 0,
   flipH = false,
   flipV = false,
@@ -239,6 +278,30 @@ export function renderCanvas({
       ctx.fillStyle = tintColor;
       ctx.globalAlpha = Math.min(1, Math.max(0, darken));
       ctx.fillRect(0, 0, targetWidth, targetHeight);
+      ctx.restore();
+    }
+
+    // Frosted Glass VFX (Micro-surface roughness grain + frosted specular diffusion)
+    if (frostedGlass) {
+      ctx.save();
+      const pattern = getNoisePattern(ctx);
+      if (pattern) {
+        // Micro-surface frosted grain
+        ctx.fillStyle = pattern;
+        ctx.globalAlpha = Math.min(0.6, Math.max(0.04, glassRoughness || 0.18));
+        ctx.fillRect(0, 0, targetWidth, targetHeight);
+      }
+
+      // Frosted specular sheen & ambient translucency
+      if (glassSpecular > 0) {
+        const sheenGradient = ctx.createLinearGradient(0, 0, targetWidth * 0.8, targetHeight);
+        sheenGradient.addColorStop(0, `rgba(255, 255, 255, ${Math.min(0.5, glassSpecular * 0.7)})`);
+        sheenGradient.addColorStop(0.35, `rgba(255, 255, 255, ${Math.min(0.2, glassSpecular * 0.2)})`);
+        sheenGradient.addColorStop(0.65, 'rgba(255, 255, 255, 0.0)');
+        sheenGradient.addColorStop(1, `rgba(255, 255, 255, ${Math.min(0.25, glassSpecular * 0.35)})`);
+        ctx.fillStyle = sheenGradient;
+        ctx.fillRect(0, 0, targetWidth, targetHeight);
+      }
       ctx.restore();
     }
   } else {

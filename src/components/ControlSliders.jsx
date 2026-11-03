@@ -39,6 +39,12 @@ export default function ControlSliders({
   setShowBackground,
   solidBackgroundColor,
   setSolidBackgroundColor,
+  frostedGlass = false,
+  setFrostedGlass,
+  glassRoughness = 0.18,
+  setGlassRoughness,
+  glassSpecular = 0.25,
+  setGlassSpecular,
 
   // Foreground Props
   padding,
@@ -276,6 +282,74 @@ export default function ControlSliders({
                     className="w-full accent-[#a9967f] cursor-pointer"
                   />
                 </div>
+              </div>
+
+              {/* Frosted Glass VFX Section */}
+              <div className="p-3.5 rounded-2xl bg-[#252526]/90 border border-[#3a3a3c] space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#a9967f]" />
+                    <div>
+                      <span className="text-xs font-bold text-[#e1e1e0]">Frosted Glass VFX</span>
+                      <p className="text-[10px] text-[#e1e1e0]/60">Diffused glass refraction, micro-grain & specular sheen</p>
+                    </div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={frostedGlass}
+                      onChange={(e) => setFrostedGlass?.(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-10 h-5.5 bg-[#3a3a3c] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#3a3a3c] after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-[#a9967f]"></div>
+                  </label>
+                </div>
+
+                {frostedGlass && (
+                  <div className="space-y-3 pt-1 border-t border-[#3a3a3c]/60 animate-fade-in">
+                    {/* Glass Surface Roughness (Grain) */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px] font-semibold text-[#e1e1e0]">
+                        <span>Glass Roughness (Grain)</span>
+                        <span className="font-mono text-[#a9967f]">{Math.round(glassRoughness * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.04"
+                        max="0.5"
+                        step="0.02"
+                        value={glassRoughness}
+                        onChange={(e) => setGlassRoughness?.(parseFloat(e.target.value))}
+                        className="w-full accent-[#a9967f] cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[9px] text-[#e1e1e0]/40 font-mono">
+                        <span>Smooth Glass</span>
+                        <span>Frosted Etch</span>
+                      </div>
+                    </div>
+
+                    {/* Specular Sheen */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px] font-semibold text-[#e1e1e0]">
+                        <span>Specular Sheen (Gloss)</span>
+                        <span className="font-mono text-[#a9967f]">{Math.round(glassSpecular * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="0.6"
+                        step="0.02"
+                        value={glassSpecular}
+                        onChange={(e) => setGlassSpecular?.(parseFloat(e.target.value))}
+                        className="w-full accent-[#a9967f] cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[9px] text-[#e1e1e0]/40 font-mono">
+                        <span>Matte</span>
+                        <span>Luminous Glass</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </>
           ) : (
