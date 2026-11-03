@@ -610,9 +610,6 @@ export default function App() {
                 rotation={rotation}
                 flipH={flipH}
                 flipV={flipV}
-                enableCornerRadius={enableCornerRadius}
-                cornerRadius={cornerRadius}
-                onToggleCorners={handleToggleCorners}
                 onOpenFullscreen={() => setIsFullscreenOpen(true)}
                 onReset={handleResetAll}
               />

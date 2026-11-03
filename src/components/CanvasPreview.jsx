@@ -5,7 +5,6 @@ import {
   FlipVertical,
   Maximize2,
   Move,
-  Square,
   RefreshCw,
 } from 'lucide-react';
 
@@ -21,9 +20,6 @@ export default function CanvasPreview({
   rotation,
   flipH,
   flipV,
-  enableCornerRadius = true,
-  cornerRadius = 24,
-  onToggleCorners,
   onOpenFullscreen,
   onReset,
 }) {
@@ -151,30 +147,6 @@ export default function CanvasPreview({
           >
             <FlipVertical className="w-3.5 h-3.5" />
             {flipV && (
-              <span className="w-1.5 h-1.5 rounded-full bg-[#a9967f] absolute top-1 right-1" />
-            )}
-          </button>
-
-          {/* Corner Toggle: Strict square, active gold border & corner indicator */}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleCorners();
-            }}
-            className={`w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-lg border transition-all active:scale-90 relative ${
-              enableCornerRadius && cornerRadius > 0
-                ? 'bg-[#a9967f]/25 border-[#a9967f] text-[#a9967f]'
-                : 'bg-[#252526]/80 hover:bg-[#3a3a3c] border-transparent text-[#e1e1e0]/60'
-            }`}
-            title={
-              enableCornerRadius && cornerRadius > 0
-                ? `Rounded corners active (${cornerRadius}px)`
-                : 'Sharp corners'
-            }
-          >
-            <Square className="w-3.5 h-3.5" />
-            {enableCornerRadius && cornerRadius > 0 && (
               <span className="w-1.5 h-1.5 rounded-full bg-[#a9967f] absolute top-1 right-1" />
             )}
           </button>
