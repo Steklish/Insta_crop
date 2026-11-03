@@ -47,7 +47,7 @@ export default function CanvasPreview({
         {/* Top Left: 2-Row Compact Preset & Resolution Island */}
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute top-2 left-2 z-10 flex flex-col justify-center px-2.5 py-1 rounded-xl bg-[#1c1c1e]/85 backdrop-blur-md border border-[#3a3a3c]/80 text-[#e1e1e0] shadow-lg pointer-events-auto select-none leading-tight max-w-[60%] sm:max-w-xs"
+          className="absolute top-2 left-2 z-10 flex flex-col justify-center px-2.5 py-1 rounded-xl bg-[#1c1c1e]/85 backdrop-blur-md border border-[#3a3a3c]/80 text-[#e1e1e0] shadow-lg pointer-events-auto select-none leading-tight max-w-[55%] sm:max-w-xs"
         >
           <div className="font-bold text-[10px] sm:text-xs text-white truncate">
             {preset.name} <span className="text-[#a9967f] font-normal">({preset.label})</span>
@@ -57,141 +57,140 @@ export default function CanvasPreview({
           </div>
         </div>
 
-        {/* Right Side: Fullscreen & Vertical Action Island */}
+        {/* Right Side: Strictly Fixed-Width Vertical Floating Island */}
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute top-2 right-2 z-10 flex flex-col items-end gap-1 pointer-events-auto"
+          className="absolute top-2 right-2 z-10 flex flex-col items-center gap-1 p-1 rounded-xl bg-[#1c1c1e]/85 backdrop-blur-xl border border-[#3a3a3c]/90 shadow-2xl pointer-events-auto w-9 select-none"
         >
-          {/* Top Actions: Fullscreen & New Photo */}
-          <div className="flex items-center gap-0.5 p-0.5 rounded-xl bg-[#1c1c1e]/85 backdrop-blur-md border border-[#3a3a3c]/80 shadow-lg">
-            {onReset && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onReset();
-                }}
-                className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-[#F44336]/20 text-[#e1e1e0]/80 hover:text-[#F44336] transition-colors active:scale-95"
-                title="Upload another photo / Start over"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-              </button>
+          {/* Fullscreen Button */}
+          {onOpenFullscreen && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenFullscreen();
+              }}
+              className="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-lg bg-[#252526]/80 hover:bg-[#3a3a3c] text-[#a9967f] hover:text-white transition-all active:scale-90"
+              title="Open fullscreen (zoom & pan)"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {/* New Photo Button */}
+          {onReset && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onReset();
+              }}
+              className="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-lg bg-[#252526]/80 hover:bg-[#F44336]/20 text-[#e1e1e0]/80 hover:text-[#F44336] transition-all active:scale-90"
+              title="Upload another photo / Start over"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {/* Subtle Hairline Divider */}
+          <div className="w-4 h-[1px] bg-[#3a3a3c]/80 my-0.5 flex-shrink-0" />
+
+          {/* Rotate Button: Strict square, active gold border & corner indicator */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRotate();
+            }}
+            className={`w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-lg border transition-all active:scale-90 relative ${
+              rotation !== 0
+                ? 'bg-[#a9967f]/25 border-[#a9967f] text-[#a9967f]'
+                : 'bg-[#252526]/80 hover:bg-[#3a3a3c] border-transparent text-[#e1e1e0]'
+            }`}
+            title={`Rotate 90° clockwise (current: ${rotation}°)`}
+          >
+            <RotateCw className="w-3.5 h-3.5" />
+            {rotation !== 0 && (
+              <span className="w-1.5 h-1.5 rounded-full bg-[#a9967f] absolute top-1 right-1" />
             )}
+          </button>
 
-            {onOpenFullscreen && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpenFullscreen();
-                }}
-                className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-[#3a3a3c] text-[#a9967f] hover:text-white transition-colors active:scale-95"
-                title="Open fullscreen (zoom & pan)"
-              >
-                <Maximize2 className="w-3.5 h-3.5" />
-              </button>
+          {/* Flip H Button: Strict square, active gold border & corner indicator */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onFlipH();
+            }}
+            className={`w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-lg border transition-all active:scale-90 relative ${
+              flipH
+                ? 'bg-[#a9967f]/25 border-[#a9967f] text-[#a9967f]'
+                : 'bg-[#252526]/80 hover:bg-[#3a3a3c] border-transparent text-[#e1e1e0]'
+            }`}
+            title="Flip horizontally"
+          >
+            <FlipHorizontal className="w-3.5 h-3.5" />
+            {flipH && (
+              <span className="w-1.5 h-1.5 rounded-full bg-[#a9967f] absolute top-1 right-1" />
             )}
-          </div>
+          </button>
 
-          {/* Vertical Toolbar Island: Rotate, Flips, Corners, Center */}
-          <div className="flex flex-col items-end gap-1 p-1 rounded-xl bg-[#1c1c1e]/85 backdrop-blur-xl border border-[#3a3a3c]/90 shadow-2xl">
-            {/* Rotate Button: Compact icon, reveals degree only when rotated */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onRotate();
-              }}
-              className={`min-w-[28px] h-7 flex items-center justify-center gap-1 px-1.5 rounded-lg border transition-all active:scale-95 ${
-                rotation !== 0
-                  ? 'bg-[#a9967f]/25 border-[#a9967f] text-[#a9967f]'
-                  : 'bg-[#252526]/80 hover:bg-[#3a3a3c] border-transparent text-[#e1e1e0]'
-              }`}
-              title={`Rotate 90° clockwise (current: ${rotation}°)`}
-            >
-              <RotateCw className="w-3.5 h-3.5" />
-              {rotation !== 0 && (
-                <span className="text-[10px] font-mono font-bold leading-none">{rotation}°</span>
-              )}
-            </button>
+          {/* Flip V Button: Strict square, active gold border & corner indicator */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onFlipV();
+            }}
+            className={`w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-lg border transition-all active:scale-90 relative ${
+              flipV
+                ? 'bg-[#a9967f]/25 border-[#a9967f] text-[#a9967f]'
+                : 'bg-[#252526]/80 hover:bg-[#3a3a3c] border-transparent text-[#e1e1e0]'
+            }`}
+            title="Flip vertically"
+          >
+            <FlipVertical className="w-3.5 h-3.5" />
+            {flipV && (
+              <span className="w-1.5 h-1.5 rounded-full bg-[#a9967f] absolute top-1 right-1" />
+            )}
+          </button>
 
-            {/* Flip H Button: Compact icon, reveals H label only when active */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onFlipH();
-              }}
-              className={`min-w-[28px] h-7 flex items-center justify-center gap-1 px-1.5 rounded-lg border transition-all active:scale-95 ${
-                flipH
-                  ? 'bg-[#a9967f]/25 border-[#a9967f] text-[#a9967f]'
-                  : 'bg-[#252526]/80 hover:bg-[#3a3a3c] border-transparent text-[#e1e1e0]'
-              }`}
-              title="Flip horizontally"
-            >
-              <FlipHorizontal className="w-3.5 h-3.5" />
-              {flipH && (
-                <span className="text-[9px] font-bold leading-none uppercase">H</span>
-              )}
-            </button>
+          {/* Corner Toggle: Strict square, active gold border & corner indicator */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleCorners();
+            }}
+            className={`w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-lg border transition-all active:scale-90 relative ${
+              enableCornerRadius && cornerRadius > 0
+                ? 'bg-[#a9967f]/25 border-[#a9967f] text-[#a9967f]'
+                : 'bg-[#252526]/80 hover:bg-[#3a3a3c] border-transparent text-[#e1e1e0]/60'
+            }`}
+            title={
+              enableCornerRadius && cornerRadius > 0
+                ? `Rounded corners active (${cornerRadius}px)`
+                : 'Sharp corners'
+            }
+          >
+            <Square className="w-3.5 h-3.5" />
+            {enableCornerRadius && cornerRadius > 0 && (
+              <span className="w-1.5 h-1.5 rounded-full bg-[#a9967f] absolute top-1 right-1" />
+            )}
+          </button>
 
-            {/* Flip V Button: Compact icon, reveals V label only when active */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onFlipV();
-              }}
-              className={`min-w-[28px] h-7 flex items-center justify-center gap-1 px-1.5 rounded-lg border transition-all active:scale-95 ${
-                flipV
-                  ? 'bg-[#a9967f]/25 border-[#a9967f] text-[#a9967f]'
-                  : 'bg-[#252526]/80 hover:bg-[#3a3a3c] border-transparent text-[#e1e1e0]'
-              }`}
-              title="Flip vertically"
-            >
-              <FlipVertical className="w-3.5 h-3.5" />
-              {flipV && (
-                <span className="text-[9px] font-bold leading-none uppercase">V</span>
-              )}
-            </button>
-
-            {/* Corners Toggle: Compact icon, reveals radius only when active */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleCorners();
-              }}
-              className={`min-w-[28px] h-7 flex items-center justify-center gap-1 px-1.5 rounded-lg border transition-all active:scale-95 ${
-                enableCornerRadius && cornerRadius > 0
-                  ? 'bg-[#a9967f]/25 border-[#a9967f] text-[#a9967f]'
-                  : 'bg-[#252526]/80 hover:bg-[#3a3a3c] border-transparent text-[#e1e1e0]/60'
-              }`}
-              title={
-                enableCornerRadius && cornerRadius > 0
-                  ? `Rounded corners active (${cornerRadius}px)`
-                  : 'Sharp corners'
-              }
-            >
-              <Square className="w-3.5 h-3.5" />
-              {enableCornerRadius && cornerRadius > 0 && (
-                <span className="text-[9px] font-mono font-bold leading-none">{cornerRadius}px</span>
-              )}
-            </button>
-
-            {/* Center / Reset Position Button */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onResetPosition();
-              }}
-              className="w-7 h-7 flex items-center justify-center rounded-lg bg-[#252526]/80 hover:bg-[#3a3a3c] text-[#e1e1e0]/70 hover:text-white transition-all active:scale-95"
-              title="Center image position"
-            >
-              <Move className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          {/* Center Position Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onResetPosition();
+            }}
+            className="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-lg bg-[#252526]/80 hover:bg-[#3a3a3c] text-[#e1e1e0]/70 hover:text-white transition-all active:scale-90"
+            title="Center image position"
+          >
+            <Move className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </div>
