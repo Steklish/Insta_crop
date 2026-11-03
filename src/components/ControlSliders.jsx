@@ -388,9 +388,11 @@ export default function ControlSliders({
                     {/* Grain Color Mode */}
                     <div className="space-y-1.5 pt-0.5">
                       <span className="text-[11px] font-semibold text-[#e1e1e0] block">Grain Texture Mode</span>
-                      <div className="grid grid-cols-3 gap-1.5">
+                      <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-1.5">
                         {[
-                          { id: 'monochrome', label: 'Neutral Matte', desc: 'True frosted glass' },
+                          { id: 'monochrome', label: 'Neutral Matte', desc: 'Natural frosted glass' },
+                          { id: 'dark', label: 'Dark Charcoal', desc: 'Deep obsidian grain' },
+                          { id: 'mixed', label: 'Mixed Salt & Pepper', desc: 'Dual-tone contrast' },
                           { id: 'silver', label: 'Silver Crystal', desc: 'Reflective glitter' },
                           { id: 'color', label: 'Prismatic', desc: 'Chromatic dispersion' },
                         ].map((mode) => (
@@ -403,6 +405,7 @@ export default function ControlSliders({
                                 ? 'bg-[#a9967f] text-[#1c1c1e] font-bold border-[#a9967f] shadow-sm'
                                 : 'bg-[#1c1c1e] border-[#3a3a3c] text-[#e1e1e0]/70 hover:text-white'
                             }`}
+                            title={mode.desc}
                           >
                             <div className="text-[10px] font-bold truncate">{mode.label}</div>
                           </button>

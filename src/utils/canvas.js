@@ -76,6 +76,21 @@ function getNoisePattern(ctx, grainSize = 1.0, grainDensity = 1.0, grainColorMod
         data[i + 1] = v;
         data[i + 2] = v;
         data[i + 3] = Math.floor(Math.random() * 120) + 40;
+      } else if (mode === 'dark') {
+        // Deep dark obsidian / carbon grain particles
+        const v = Math.floor(Math.random() * 45); // deep dark blacks / charcoals
+        data[i] = v;
+        data[i + 1] = v;
+        data[i + 2] = v;
+        data[i + 3] = Math.floor(Math.random() * 140) + 50;
+      } else if (mode === 'mixed') {
+        // Salt & pepper / mixed dual-tone grain (deep shadows + bright highlights)
+        const isBright = Math.random() > 0.48;
+        const v = isBright ? Math.floor(Math.random() * 70) + 185 : Math.floor(Math.random() * 45);
+        data[i] = v;
+        data[i + 1] = v;
+        data[i + 2] = v;
+        data[i + 3] = Math.floor(Math.random() * 120) + 45;
       } else {
         // Monochrome smooth matte frosted grain
         const v = Math.floor(Math.random() * 255);
