@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import Header from './components/Header';
 import EmptyState from './components/EmptyState';
 import CanvasPreview from './components/CanvasPreview';
 import PresetSelector from './components/PresetSelector';
@@ -583,17 +582,11 @@ export default function App() {
     <div className="min-h-screen flex flex-col bg-[#1c1c1e] text-[#e1e1e0] font-sans pb-20 xs:pb-24 lg:pb-6">
       {/* Toast Notification */}
       {toast && (
-        <div className="fixed top-12 xs:top-14 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 xs:gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-2xl bg-[#2a2a2c] text-[#e1e1e0] text-[11px] xs:text-xs font-semibold shadow-2xl shadow-black/60 border border-[#a9967f]/50 animate-fade-in max-w-[90vw] truncate">
+        <div className="fixed top-3 xs:top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 xs:gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-2xl bg-[#2a2a2c] text-[#e1e1e0] text-[11px] xs:text-xs font-semibold shadow-2xl shadow-black/60 border border-[#a9967f]/50 animate-fade-in max-w-[90vw] truncate">
           <Sparkles className="w-3.5 h-3.5 text-[#a9967f] flex-shrink-0" />
           <span className="truncate">{toast}</span>
         </div>
       )}
-
-      {/* Header */}
-      <Header
-        onReset={handleResetAll}
-        hasImage={Boolean(image)}
-      />
 
       {/* Main Studio Viewport */}
       <main className="flex-1 w-full max-w-7xl mx-auto p-1.5 xs:p-2.5 sm:p-5">
@@ -604,7 +597,7 @@ export default function App() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 xs:gap-4 sm:gap-5 items-start">
             {/* LEFT COLUMN / MOBILE PINNED: Canvas Preview */}
-            <div className="sticky top-11 sm:top-12 lg:top-18 z-20 bg-[#1c1c1e] pb-1 xs:pb-2 lg:pb-0 lg:col-span-7 xl:col-span-8">
+            <div className="sticky top-0 lg:top-2 z-20 bg-[#1c1c1e] pt-0.5 pb-1 xs:pb-2 lg:pb-0 lg:col-span-7 xl:col-span-8">
               <CanvasPreview
                 canvasRef={canvasRef}
                 originalImage={image}
@@ -621,6 +614,7 @@ export default function App() {
                 cornerRadius={cornerRadius}
                 onToggleCorners={handleToggleCorners}
                 onOpenFullscreen={() => setIsFullscreenOpen(true)}
+                onReset={handleResetAll}
               />
             </div>
 
