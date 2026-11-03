@@ -20,11 +20,12 @@ import {
 } from 'lucide-react';
 
 const FONT_FAMILIES = [
+  { id: "'Praise', cursive, sans-serif", name: 'Praise (Calligraphy Script)' },
   { id: 'system-ui, -apple-system, sans-serif', name: 'Modern Sans (System)' },
   { id: 'Georgia, serif', name: 'Classic Serif (Georgia)' },
   { id: 'Impact, sans-serif', name: 'Bold Poster (Impact)' },
   { id: '"Courier New", Courier, monospace', name: 'Monospace (Courier)' },
-  { id: '"Brush Script MT", cursive, sans-serif', name: 'Script (Handwritten)' },
+  { id: '"Brush Script MT", cursive, sans-serif', name: 'Handwritten (Brush Script)' },
 ];
 
 const PRESET_COLORS = [
