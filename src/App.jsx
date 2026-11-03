@@ -159,6 +159,30 @@ export default function App() {
     },
   });
 
+  // Lock interface scale: prevent accidental pinch-zoom and Ctrl+wheel zooming on the page layout
+  useEffect(() => {
+    // Prevent iOS Safari gesture zooming on document
+    const handleGesture = (e) => e.preventDefault();
+    document.addEventListener('gesturestart', handleGesture);
+    document.addEventListener('gesturechange', handleGesture);
+    document.addEventListener('gestureend', handleGesture);
+
+    // Prevent desktop Ctrl + mouse wheel / trackpad pinch zoom on page interface
+    const handleWheelZoom = (e) => {
+      if (e.ctrlKey) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('wheel', handleWheelZoom, { passive: false });
+
+    return () => {
+      document.removeEventListener('gesturestart', handleGesture);
+      document.removeEventListener('gesturechange', handleGesture);
+      document.removeEventListener('gestureend', handleGesture);
+      window.removeEventListener('wheel', handleWheelZoom);
+    };
+  }, []);
+
   // Calculate live preview canvas dimensions
   const previewDimensions = calculateCanvasDimensions({
     preset: selectedPreset,

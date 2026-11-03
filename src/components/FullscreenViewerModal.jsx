@@ -4,10 +4,7 @@ import {
   ZoomIn,
   ZoomOut,
   RotateCcw,
-  Maximize2,
-  Minimize2,
   Move,
-  Info,
 } from 'lucide-react';
 
 export default function FullscreenViewerModal({
@@ -22,6 +19,15 @@ export default function FullscreenViewerModal({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [dataUrl, setDataUrl] = useState(null);
+
+  const viewportRef = useRef(null);
+  const touchStateRef = useRef({
+    initialDist: 0,
+    initialScale: 1,
+    lastX: 0,
+    lastY: 0,
+    lastTapTime: 0,
+  });
 
   // Capture canvas image whenever modal opens or canvas updates
   useEffect(() => {
@@ -59,17 +65,6 @@ export default function FullscreenViewerModal({
     setPosition({ x: 0, y: 0 });
   };
 
-  // Mouse wheel zoom
-  const handleWheel = (e) => {
-    e.preventDefault();
-    const zoomFactor = 1.15;
-    if (e.deltaY < 0) {
-      setScale((prev) => Math.min(6, prev * zoomFactor));
-    } else {
-      setScale((prev) => Math.max(0.5, prev / zoomFactor));
-    }
-  };
-
   // Mouse pan drag
   const handleMouseDown = (e) => {
     setIsDragging(true);
@@ -88,11 +83,19 @@ export default function FullscreenViewerModal({
     setIsDragging(false);
   };
 
-  // Touch handlers for mobile pan & pinch-zoom
-  const touchStateRef = useRef({ initialDist: 0, initialScale: 1, lastX: 0, lastY: 0 });
-
+  // Touch handlers for mobile pan, pinch-zoom, and double-tap zoom
   const handleTouchStart = (e) => {
+    const now = Date.now();
     if (e.touches.length === 1) {
+      // Double tap to toggle zoom
+      if (now - touchStateRef.current.lastTapTime < 300) {
+        setScale((prev) => (prev > 1.2 ? 1 : 2.5));
+        setPosition({ x: 0, y: 0 });
+        touchStateRef.current.lastTapTime = 0;
+        return;
+      }
+      touchStateRef.current.lastTapTime = now;
+
       setIsDragging(true);
       touchStateRef.current.lastX = e.touches[0].clientX - position.x;
       touchStateRef.current.lastY = e.touches[0].clientY - position.y;
@@ -105,37 +108,63 @@ export default function FullscreenViewerModal({
     }
   };
 
-  const handleTouchMove = (e) => {
-    if (e.touches.length === 1 && isDragging) {
-      setPosition({
-        x: e.touches[0].clientX - touchStateRef.current.lastX,
-        y: e.touches[0].clientY - touchStateRef.current.lastY,
-      });
-    } else if (e.touches.length === 2 && touchStateRef.current.initialDist > 0) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      const dist = Math.hypot(dx, dy);
-      const factor = dist / touchStateRef.current.initialDist;
-      setScale(Math.max(0.5, Math.min(6, touchStateRef.current.initialScale * factor)));
-    }
-  };
-
   const handleTouchEnd = () => {
     setIsDragging(false);
     touchStateRef.current.initialDist = 0;
   };
 
+  // Attach non-passive wheel and touchmove listeners to intercept browser zoom
+  // and direct zoom/pan exclusively to the image element
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el || !isOpen) return;
+
+    const onWheel = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const zoomFactor = 1.15;
+      if (e.deltaY < 0) {
+        setScale((prev) => Math.min(6, prev * zoomFactor));
+      } else {
+        setScale((prev) => Math.max(0.5, prev / zoomFactor));
+      }
+    };
+
+    const onTouchMove = (e) => {
+      if (e.cancelable) e.preventDefault();
+      if (e.touches.length === 1 && isDragging) {
+        setPosition({
+          x: e.touches[0].clientX - touchStateRef.current.lastX,
+          y: e.touches[0].clientY - touchStateRef.current.lastY,
+        });
+      } else if (e.touches.length === 2 && touchStateRef.current.initialDist > 0) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.hypot(dx, dy);
+        const factor = dist / touchStateRef.current.initialDist;
+        setScale(Math.max(0.5, Math.min(6, touchStateRef.current.initialScale * factor)));
+      }
+    };
+
+    el.addEventListener('wheel', onWheel, { passive: false });
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('touchmove', onTouchMove);
+    };
+  }, [isOpen, isDragging, scale]);
+
   if (!isOpen) return null;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col bg-[#1c1c1e]/98 backdrop-blur-2xl animate-fade-in select-none"
-      onWheel={handleWheel}
+      className="fixed inset-0 z-50 flex flex-col bg-[#1c1c1e]/98 backdrop-blur-2xl animate-fade-in select-none touch-none overscroll-none"
       onMouseUp={handleMouseUp}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Top Header Bar */}
-      <div className="flex items-center justify-between px-3 xs:px-5 py-2.5 xs:py-3 border-b border-[#3a3a3c] bg-[#252526]/80 backdrop-blur-md z-10">
+      {/* Top Header Bar - Remains crisp at 100% scale */}
+      <div className="flex items-center justify-between px-3 xs:px-5 py-2.5 xs:py-3 border-b border-[#3a3a3c] bg-[#252526]/80 backdrop-blur-md z-10 flex-shrink-0">
         <div className="flex items-center gap-2">
           <span className="px-2 py-0.5 rounded-full bg-[#3a3a3c] text-[#a9967f] text-[10px] xs:text-xs font-mono font-bold">
             {preset?.name || 'Canvas'} ({preset?.label || ''})
@@ -184,11 +213,11 @@ export default function FullscreenViewerModal({
 
       {/* Main Interactive Zoom & Pan Viewport */}
       <div
-        className="flex-1 relative w-full h-full overflow-hidden flex items-center justify-center cursor-grab active:cursor-grabbing canvas-checkerboard"
+        ref={viewportRef}
+        className="flex-1 relative w-full h-full overflow-hidden flex items-center justify-center cursor-grab active:cursor-grabbing canvas-checkerboard touch-none overscroll-none"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
       >
         {dataUrl ? (
           <div
@@ -197,7 +226,7 @@ export default function FullscreenViewerModal({
               transition: isDragging ? 'none' : 'transform 0.08s ease-out',
               transformOrigin: 'center center',
             }}
-            className="max-w-[90vw] max-h-[85vh] flex items-center justify-center pointer-events-none drop-shadow-2xl"
+            className="max-w-[90vw] max-h-[85vh] flex items-center justify-center pointer-events-none drop-shadow-2xl will-change-transform"
           >
             <img
               src={dataUrl}
@@ -214,9 +243,9 @@ export default function FullscreenViewerModal({
         )}
 
         {/* Floating Bottom Navigator / Gesture Hint */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-[#252526]/90 backdrop-blur-md border border-[#3a3a3c] text-[10px] text-[#e1e1e0]/70 flex items-center gap-2 pointer-events-none shadow-xl">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-[#252526]/90 backdrop-blur-md border border-[#3a3a3c] text-[10px] text-[#e1e1e0]/70 flex items-center gap-2 pointer-events-none shadow-xl select-none">
           <Move className="w-3 h-3 text-[#a9967f]" />
-          <span>Drag to pan • Pinch / Scroll to zoom</span>
+          <span>Drag to pan • Pinch / Double-tap / Scroll to zoom</span>
         </div>
       </div>
     </div>
