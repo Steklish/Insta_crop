@@ -194,6 +194,10 @@ export function renderCanvas({
   shadowOffsetY = 12,
   borderWidth = 0,
   borderColor = '#ffffff',
+  glowEnabled = false,
+  glowColor = '#a9967f',
+  glowBlur = 45,
+  glowOpacity = 0.7,
   frostedGlass = false,
   glassRoughness = 0.18,
   glassSpecular = 0.25,
@@ -356,7 +360,26 @@ export function renderCanvas({
   const drawX = -fgDrawW / 2;
   const drawY = -fgDrawH / 2;
 
-  // A. Drop Shadow
+  // A. Colored Glow under image
+  if (glowEnabled && glowOpacity > 0) {
+    const actualGlowBlur = Math.max(4, (glowBlur || 45) * scaleFactor);
+    ctx.save();
+    // Use glowColor with shadowBlur for vibrant ambient radiance
+    ctx.shadowColor = glowColor || '#a9967f';
+    ctx.shadowBlur = actualGlowBlur;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.globalAlpha = Math.min(1.0, Math.max(0.05, glowOpacity || 0.7));
+    ctx.fillStyle = glowColor || '#a9967f';
+    drawRoundedRectPath(ctx, drawX, drawY, fgDrawW, fgDrawH, actualRadius);
+    ctx.fill();
+    // Second softer pass for richer neon/ambient glow diffusion
+    ctx.shadowBlur = actualGlowBlur * 1.6;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // B. Drop Shadow
   if (actualShadowBlur > 0 && shadowOpacity > 0) {
     ctx.save();
     ctx.shadowColor = `rgba(0, 0, 0, ${shadowOpacity})`;
@@ -371,14 +394,14 @@ export function renderCanvas({
     ctx.restore();
   }
 
-  // B. Draw Clipped Foreground Image
+  // C. Draw Clipped Foreground Image
   ctx.save();
   drawRoundedRectPath(ctx, drawX, drawY, fgDrawW, fgDrawH, actualRadius);
   ctx.clip();
   ctx.drawImage(image, drawX, drawY, fgDrawW, fgDrawH);
   ctx.restore();
 
-  // C. Foreground Border
+  // D. Foreground Border
   if (actualBorderWidth > 0) {
     ctx.save();
     drawRoundedRectPath(ctx, drawX, drawY, fgDrawW, fgDrawH, actualRadius);

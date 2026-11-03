@@ -74,6 +74,10 @@ export default function App() {
   const [shadowOffsetY, setShadowOffsetY] = useState(() => initialSettings?.shadowOffsetY ?? 12);
   const [borderWidth, setBorderWidth] = useState(() => initialSettings?.borderWidth ?? 0);
   const [borderColor, setBorderColor] = useState(() => initialSettings?.borderColor ?? '#ffffff');
+  const [glowEnabled, setGlowEnabled] = useState(() => initialSettings?.glowEnabled ?? false);
+  const [glowColor, setGlowColor] = useState(() => initialSettings?.glowColor ?? '#a9967f');
+  const [glowBlur, setGlowBlur] = useState(() => initialSettings?.glowBlur ?? 45);
+  const [glowOpacity, setGlowOpacity] = useState(() => initialSettings?.glowOpacity ?? 0.7);
 
   // Export Settings (saved in presets and persisted across sessions)
   const [exportFormat, setExportFormat] = useState(() => initialSettings?.exportFormat ?? 'image/png');
@@ -176,6 +180,10 @@ export default function App() {
     shadowOffsetY,
     borderWidth,
     borderColor,
+    glowEnabled,
+    glowColor,
+    glowBlur,
+    glowOpacity,
     rotation,
     flipH,
     flipV,
@@ -321,6 +329,10 @@ export default function App() {
     setShadowOffsetY(12);
     setBorderWidth(0);
     setBorderColor('#ffffff');
+    setGlowEnabled(false);
+    setGlowColor('#a9967f');
+    setGlowBlur(45);
+    setGlowOpacity(0.7);
     setRotation(0);
     setFlipH(false);
     setFlipV(false);
@@ -360,6 +372,10 @@ export default function App() {
     if (typeof settings.shadowOffsetY === 'number') setShadowOffsetY(settings.shadowOffsetY);
     if (typeof settings.borderWidth === 'number') setBorderWidth(settings.borderWidth);
     if (typeof settings.borderColor === 'string') setBorderColor(settings.borderColor);
+    if (typeof settings.glowEnabled === 'boolean') setGlowEnabled(settings.glowEnabled);
+    if (typeof settings.glowColor === 'string') setGlowColor(settings.glowColor);
+    if (typeof settings.glowBlur === 'number') setGlowBlur(settings.glowBlur);
+    if (typeof settings.glowOpacity === 'number') setGlowOpacity(settings.glowOpacity);
     if (typeof settings.frostedGlass === 'boolean') setFrostedGlass(settings.frostedGlass);
     if (typeof settings.glassRoughness === 'number') setGlassRoughness(settings.glassRoughness);
     if (typeof settings.glassSpecular === 'number') setGlassSpecular(settings.glassSpecular);
@@ -427,6 +443,10 @@ export default function App() {
     shadowOffsetY,
     borderWidth,
     borderColor,
+    glowEnabled,
+    glowColor,
+    glowBlur,
+    glowOpacity,
     frostedGlass,
     glassRoughness,
     glassSpecular,
@@ -481,6 +501,10 @@ export default function App() {
     shadowOffsetY,
     borderWidth,
     borderColor,
+    glowEnabled,
+    glowColor,
+    glowBlur,
+    glowOpacity,
     frostedGlass,
     glassRoughness,
     glassSpecular,
@@ -685,6 +709,14 @@ export default function App() {
                     setBorderWidth={setBorderWidth}
                     borderColor={borderColor}
                     setBorderColor={setBorderColor}
+                    glowEnabled={glowEnabled}
+                    setGlowEnabled={setGlowEnabled}
+                    glowColor={glowColor}
+                    setGlowColor={setGlowColor}
+                    glowBlur={glowBlur}
+                    setGlowBlur={setGlowBlur}
+                    glowOpacity={glowOpacity}
+                    setGlowOpacity={setGlowOpacity}
                     positionX={positionX}
                     setPositionX={setPositionX}
                     positionY={positionY}

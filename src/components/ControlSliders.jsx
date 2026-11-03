@@ -78,6 +78,14 @@ export default function ControlSliders({
   setBorderWidth,
   borderColor,
   setBorderColor,
+  glowEnabled = false,
+  setGlowEnabled,
+  glowColor = '#a9967f',
+  setGlowColor,
+  glowBlur = 45,
+  setGlowBlur,
+  glowOpacity = 0.7,
+  setGlowOpacity,
   positionX,
   setPositionX,
   positionY,
@@ -870,9 +878,106 @@ export default function ControlSliders({
         </div>
       )}
 
-      {/* TAB 3: EFFECTS (SHADOW & BORDER) */}
+      {/* TAB 3: EFFECTS (SHADOW, GLOW & BORDER) */}
       {activeTab === 'effects' && (
         <div className="space-y-3.5 animate-fade-in">
+          {/* Colored Glow Under Image */}
+          <div className="p-3.5 rounded-2xl bg-[#252526]/80 border border-[#3a3a3c] space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#a9967f]" />
+                <div>
+                  <span className="text-xs font-bold text-[#e1e1e0]">Colored Glow</span>
+                  <p className="text-[10px] text-[#e1e1e0]/60">Ambient neon or soft radiant backlight under picture</p>
+                </div>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={glowEnabled}
+                  onChange={(e) => setGlowEnabled?.(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-10 h-5.5 bg-[#3a3a3c] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#3a3a3c] after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-[#a9967f]"></div>
+              </label>
+            </div>
+
+            {glowEnabled && (
+              <div className="space-y-3 pt-2 border-t border-[#3a3a3c]/60 animate-fade-in">
+                {/* Glow Color Swatches & Picker */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-[11px] font-semibold text-[#e1e1e0]">
+                    <span>Glow Color</span>
+                    <span className="font-mono text-[#a9967f] uppercase text-[10px]">{glowColor}</span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {['#a9967f', '#3b82f6', '#ec4899', '#8b5cf6', '#10b981', '#f59e0b', '#06b6d4', '#ffffff'].map((gc) => (
+                      <button
+                        key={gc}
+                        type="button"
+                        onClick={() => setGlowColor?.(gc)}
+                        className={`w-6 h-6 rounded-full border transition-all ${
+                          glowColor.toLowerCase() === gc.toLowerCase()
+                            ? 'ring-2 ring-[#a9967f] border-white scale-110 shadow-md'
+                            : 'border-[#3a3a3c] opacity-80 hover:opacity-100 hover:scale-105'
+                        }`}
+                        style={{ backgroundColor: gc }}
+                        title={gc}
+                      />
+                    ))}
+                    <div className="flex items-center gap-1.5 pl-1">
+                      <input
+                        type="color"
+                        value={glowColor}
+                        onChange={(e) => setGlowColor?.(e.target.value)}
+                        className="w-6 h-6 rounded-md bg-transparent border border-[#3a3a3c] cursor-pointer p-0"
+                        title="Custom Glow Color"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Glow Spread / Blur */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[11px] font-semibold text-[#e1e1e0]">
+                    <span>Glow Spread / Radius</span>
+                    <span className="font-mono text-[#a9967f]">{glowBlur}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="10"
+                    max="100"
+                    step="2"
+                    value={glowBlur}
+                    onChange={(e) => setGlowBlur?.(parseInt(e.target.value, 10))}
+                    className="w-full accent-[#a9967f] cursor-pointer"
+                  />
+                  <div className="flex justify-between text-[9px] text-[#e1e1e0]/40 font-mono">
+                    <span>Tight (10px)</span>
+                    <span>Wide Radiance (100px)</span>
+                  </div>
+                </div>
+
+                {/* Glow Intensity / Opacity */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[11px] font-semibold text-[#e1e1e0]">
+                    <span>Glow Intensity</span>
+                    <span className="font-mono text-[#a9967f]">{Math.round(glowOpacity * 100)}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="1.0"
+                    step="0.05"
+                    value={glowOpacity}
+                    onChange={(e) => setGlowOpacity?.(parseFloat(e.target.value))}
+                    className="w-full accent-[#a9967f] cursor-pointer"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Drop Shadow Controls */}
           <div className="p-3.5 rounded-2xl bg-[#252526]/80 border border-[#3a3a3c] space-y-2">
             <div className="flex justify-between text-xs font-semibold text-[#e1e1e0]">
